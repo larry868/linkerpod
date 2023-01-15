@@ -52,12 +52,20 @@ linkerpod
 │   └── prod.env          
 │
 ├── build                           # build scripts
-│   ├── .air.toml                   # air config file for server side live rendering when in dev mode
-│   └── Taskfile.yaml               # task description to build this app
+│   └── Taskfile.yaml               # building task configuration, ic. autobuild the front
 │
 ├── cmd
 │   └── linkerpod                   # the linkerpod CLI command required to run the SPA server
-│       └── main.go          
+│       └── linkerpod.go          
+│
+├── pkg
+│   ├── spa                         # SPA main package
+│   │   ├── webserver.go                   
+│   │   └── middleware.go                   
+│   ├── api                         # API package, code to serve API requests
+│   │   └── [*.go]                   
+│   ├── sdk                         # SDK package, for any client willing to call APIs
+│   │   └── [*.go]                   
 │
 ├── web                             # source codes and assets required by the front, even server side templates
 │   ├── component
@@ -83,5 +91,45 @@ Some documentation available here https://tinygo.org/docs/guides/webassembly/ an
 
 Go provides a specific js file called `wasm_exec.js` that need to be served by your webpapp. This file mustbe part of the static assets to be served by the server. To get the latest version you can _extract_ it from you go installation: `cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static`
 
+## Development
 
-## MIT Licence
+We use ``task`` as task runner. See [Taskfile Installation](https://taskfile.dev/installation/) doc to install it.
+
+In development mode run the `dev_front` task from the root path with the `--watch flag`:
+
+```bash
+$ task -t ./build/Taskfile.yaml dev_front --watch
+```
+
+This task:
+1. moves any changed files in ``./web/static/`` to ``./tmp/website/``
+1. builds/rebuilds any frontend components and the .wasm file
+1. builds/rebuilds the ``./tmp/website/spa.wasm`` file according to changes in the ``web/wasm/main.go``
+
+Start the server either in debug mode with the `F5` in vscode, or by running the `dev_back` task:
+
+```bash
+$ task -t ./build/Taskfile.yaml dev_back
+```
+
+## Testing
+
+Useful read about [go data race detector](https://go.dev/doc/articles/race_detector#How_To_Use)
+
+To be able to test wasm code on the browser, you need to install [wasmbrowsertest](https://github.com/agnivade/wasmbrowsertest):
+
+```bash
+$ go install github.com/agnivade/wasmbrowsertest@latest
+$ mv $GOBIN/wasmbrowsertest $GOBIN/go_js_wasm_exec
+```
+
+Run the `unit_test` task to run both testing pkg and wasm:
+
+```bash
+$ task -t ./build/Taskfile.yaml unit_test
+```
+
+## Licence
+
+[LICENCE](LICENCE)
+ 

@@ -8,30 +8,24 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/sunraylab/linkerpod/pkg/sdk"
 )
 
 // the main func is required by the wasm GO builder
-// prints will appears in the console of the browser
+// outputs will appears in the console of the browser
 func main() {
 
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded")
 
-	// here start the code to customize
-	// Welcome code
-	// welcomeE := spa.GetElementById("welcome")
-	// if welcomeE == nil {
-	// 	panic("bad page, welcome missing")
-	// }
-	// welcomeE.SetInnerHTML("Loading...")
-
-	if !ApiGetHealth() {
+	// Check Server Health
+	if !sdk.ApiGetHealth() {
 		fmt.Println("Go/WASM stopped")
 		os.Exit(1)
 	}
-	// welcomeE.SetInnerHTML("Welcome Jack")
 
 	// let's go
-	fmt.Println("Go/WASM running")
+	fmt.Println("Go/WASM listening browser events")
 	<-c
 }

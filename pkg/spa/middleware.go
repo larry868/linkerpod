@@ -5,37 +5,34 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/sunraylab/verbose"
 )
 
-// Logger is a middleware handler that does request logging
+// logger is a middleware handler that does request logging
 // https://drstearns.github.io/tutorials/gomiddleware/
-type Logger struct {
+type logger struct {
 	http.Handler
 	apicalls int
 }
 
-// NewLogger constructs a new Logger middleware handler
-func NewLogger(handlerToWrap http.Handler) *Logger {
-	return &Logger{handlerToWrap, 0}
+// newLogger constructs a new Logger middleware handler
+func newLogger(handlerToWrap http.Handler) *logger {
+	return &logger{handlerToWrap, 0}
 }
 
 // ServeHTTP handles the request by passing it to the real
 // handler and logging the request details
-func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (l *logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	isapi := strings.HasPrefix(r.URL.Path, "/api")
-	if isapi {
+	if strings.HasPrefix(r.URL.Path, "/api") {
 		l.apicalls++
 		call := l.apicalls
-		verbose.Printf(verbose.TRACK, "%s %s \033[7m[#%v[\033[0m\n", r.Method, r.RequestURI, l.apicalls)
+		strr := r.Method + " " + r.RequestURI
+		fmt.Printf(">>API call \033[7m[#%v[\033[0m %s >>\n", call, strr)
 		l.Handler.ServeHTTP(w, r)
-		verbose.Track(start, "%s %s \033[7m]#%v]\033[0m", r.Method, r.RequestURI, call)
+		fmt.Printf("<<API call \033[7m]#%v]\033[0m %s << %s\n", call, strr, time.Since(start))
 	} else {
-		verbose.Printf(verbose.INFO, "%s %s ", r.Method, r.RequestURI)
 		l.Handler.ServeHTTP(w, r)
-		fmt.Println("✓")
+		fmt.Printf(">>HTTP request: %s %s ✓\n", r.Method, r.RequestURI)
 	}
 }
 

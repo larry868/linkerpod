@@ -1,20 +1,19 @@
-package main
+package sdk
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/sunraylab/linkerpod/pkg/sdk"
 )
 
-// ApiGetHealth call the /api/health on the server, returning a texte with a server counter.
+// ApiGetHealth issues a GET requests to /api/health
+// returning a text with a server call counter.
 // This is necessarilly done async in a seperate go routine, see https://golang.org/pkg/syscall/js/#FuncOf
 func ApiGetHealth() (success bool) {
 	result := make(chan bool, 1)
 	go func(result chan bool) {
 
-		body, status, _ := sdk.ApiGet("", "health", "", nil)
+		body, status := ApiGet("", "health")
 		if status != http.StatusOK {
 			log.Println("health: dead")
 			result <- false

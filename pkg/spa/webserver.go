@@ -3,6 +3,7 @@ package spa
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/sunraylab/linkerpod/pkg/api"
 )
 
 type WebServer struct {
@@ -68,7 +68,7 @@ func MakeWebserver() WebServer {
 
 	// configure the /api subrouter
 	ws.ApiRouter = ws.webRouter.PathPrefix("/api").Subrouter()
-	ws.ApiRouter.HandleFunc("/health", api.ServeHealth())
+	ws.ApiRouter.HandleFunc("/health", GetHealthHandle())
 
 	return *ws
 }
@@ -78,8 +78,12 @@ func (ws WebServer) Run() {
 	// let's go
 	fmt.Printf("Starting the SPA serving assets from %q and /api on port %s\n", ws.staticfiledir, ws.http_port)
 
-	// the main handler serve spa files
+	// the main handler serving spa static files
+	// force content-type header for wasm files
 	ws.webRouter.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, ".wasm") {
+			w.Header().Set("content-type", "application/wasm")
+		}
 		http.FileServer(http.Dir(ws.staticfiledir)).ServeHTTP(w, r)
 	})
 
@@ -89,7 +93,7 @@ func (ws WebServer) Run() {
 		ws.webRouter.Use(middlewareNoCache)
 	}
 
-	// setup timeout
+	// setup timeouts
 	srv := &http.Server{
 		Addr:         ws.http_port,
 		WriteTimeout: time.Duration(ws.http_rwTimeout) * time.Second,
@@ -97,10 +101,10 @@ func (ws WebServer) Run() {
 		IdleTimeout:  time.Duration(ws.http_idleTimeout) * time.Second,
 	}
 
-	// add middleware to log every request if in verbose mode
+	// add middleware to log every request
 	if ws.http_logger {
 		fmt.Println("spa server: http logger is on")
-		srv.Handler = NewLogger(ws.webRouter)
+		srv.Handler = newLogger(ws.webRouter)
 	} else {
 		srv.Handler = ws.webRouter
 	}
@@ -133,4 +137,13 @@ func (ws WebServer) Run() {
 	srv.Shutdown(ctx)
 
 	fmt.Println("SPA web Server is down")
+}
+
+// GetHealthHandle responds to a GET Health api request
+func GetHealthHandle() func(http.ResponseWriter, *http.Request) {
+	counter := 0
+	return func(w http.ResponseWriter, r *http.Request) {
+		counter++
+		json.NewEncoder(w).Encode(map[string]string{"health": "live", "counter": strconv.Itoa(counter)})
+	}
 }
