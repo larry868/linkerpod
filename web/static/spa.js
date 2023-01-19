@@ -6,23 +6,30 @@ spaInitWebAssembly();
 */
 
 async function spaInitWebAssembly() {
+    ews = document.getElementById("spa-wasm-status");
+
     if (!spaCanLoadWebAssembly()) {
-        document.getElementById("spa-wasm-status").innerText = "unable to load the web assembly code";
+        msg = "unable to load the web assembly code with this useragant";
+        if (ews !== null) {
+            ews.innerText = msg;
+        }
+        console.error(msg);
         return;
     }
 
-    try {
-        const goWasm = new Go()
+    const goWasm = new Go()
 
-        WebAssembly.instantiateStreaming(fetch("spa.wasm"), goWasm.importObject)
-            .then((result) => {
-                goWasm.run(result.instance)
-
-            })
-    } catch (err) {
-        document.getElementById("spa-wasm-status").innerText = "loading wasm failed:" + err;
-        console.error("loading wasm failed: ", err);
-    }
+    WebAssembly.instantiateStreaming(fetch("spa.wasm"), goWasm.importObject)
+        .then((result) => {
+            goWasm.run(result.instance)
+        })
+        .catch((err) => {
+            msg = "loading wasm failed:" + err
+            if (ews !== null) {
+                ews.innerText = msg;
+            }
+            console.error(msg);
+        })
 }
 
 function spaCanLoadWebAssembly() {

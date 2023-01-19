@@ -120,7 +120,7 @@ To be able to test wasm code on the browser, you need to install [wasmbrowsertes
 
 ```bash
 $ go install github.com/agnivade/wasmbrowsertest@latest
-$ mv $GOBIN/wasmbrowsertest $GOBIN/go_js_wasm_exec
+$ mv $(go env GOBIN)/wasmbrowsertest $(go env GOBIN)/go_js_wasm_exec
 ```
 
 Run the `unit_test` task to run both testing pkg and wasm:

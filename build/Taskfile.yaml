@@ -33,6 +33,7 @@ tasks:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
       - "web/component/**/*"
+      - "pkg/icecake/**/*"
     cmds: 
       - GOARCH=wasm GOOS=js go build -o ./tmp/website/spa.wasm ./web/wasm/main.go
 

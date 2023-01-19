@@ -17,7 +17,7 @@ import (
 func main() {
 
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded")
+	fmt.Println("Go/WASM loaded.")
 
 	// Check Server Health
 	if !sdk.ApiGetHealth() {
