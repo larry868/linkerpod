@@ -14,14 +14,14 @@ tasks:
       - rm -rf ./website
       - mkdir -p ./website
       - cp -R ./web/static/** ./website
-      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm/webapp.go
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml dev --watch
   dev:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
-      - "web/wasm/webapp.go"
+      - "web/wasm/*"
       - "./web/static/**/*"
     cmds: 
       - cp -R ./web/static/** ./website
-      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm/webapp.go
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
