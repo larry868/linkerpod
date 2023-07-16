@@ -70,7 +70,15 @@ func DownloadYaml(url string) (*YamlStruct, error) {
 
 func DownloadFile(w io.Writer, url string) error {
 	// Get the data
-	resp, err := http.Get(url)
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Permissions-Policy", "interest-cohort=()")
+
+	resp, err := client.Do(req)
+	// resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
