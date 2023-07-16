@@ -2,12 +2,24 @@
 
 Linkerpod allows to reference a set of URL links (aka. social media profiles), personnal info, and web3 public keys to a single sharable link.
 
-Linkerpod aims to act as a personal dashboard portal or a link-in-bio or a brand portal in the web3 era.
+Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
 
 - build your own page of links in seconds
-- stop spending time to lookup your public keys or your IDs 
+- stop spending time to look for your links
+- get you public keys or your IDs instantly
+- share your collection of inks
 
-Linkerpod is an experimental DApp aiming to discover and implement some Web3 technologies such as :
+Linkerpod is an experimental webapp written in go with the [icecake framework](icecake.dev).
+
+Sources of inspiration: 
+- https://dashy.to/
+- https://github.com/maxence-charriere/go-app
+
+## Usage
+
+## Roadmap
+
+In a futur version, linkerpod could implement some Web3 technologies such as :
 - decentralized storage
 - authentication with a wallet
 - display NFT
@@ -15,30 +27,16 @@ Linkerpod is an experimental DApp aiming to discover and implement some Web3 tec
 - encrypt data
 - reward with tokens
 
-but also to discover and implement latest best-of-the-bread web technologies such as :
-- web assembly [see wasm doc](https://developer.mozilla.org/fr/docs/WebAssembly)
-- fullstack in go (no JS) [see this post to use wasm in GO](https://tutorialedge.net/golang/writing-frontend-web-framework-webassembly-go/)
-- PWA with installation, off-line mode, notifications [see PWA doc](https://developer.mozilla.org/fr/docs/Web/Progressive_web_apps)
-- HTTP/2 and gRPC with protobuff rather than RESTFull API [see this post about protocols](https://getstream.io/blog/communication-protocols/)
-- redis strorage
-
-Sources of inspiration: 
-- https://dashy.to/
-- https://github.com/maxence-charriere/go-app
-
-
-## Backlog
-
-- [ ] "hello world" wasm served by a SPA server, with dev environment setup.
-
 
 ## Tech
 
-- Go 1.19
+- Go 1.20
 - CSS responsive framework, without any JS code: [Bulma](https://bulma.io/)
+- [icecake framework](icecake.dev)
+    - web assembly [see wasm doc](https://developer.mozilla.org/fr/docs/WebAssembly)
+    - fullstack in go (no JS) [see this post to use wasm in GO](https://tutorialedge.net/golang/writing-frontend-web-framework-webassembly-go/)
 
-
-## Project layout
+## Project directory structure
 
 The Directory structure follows [go ecosystem recommendation](https://github.com/golang-standards/project-layout).
 
@@ -47,30 +45,12 @@ linkerpod
 │   ├── readme.md
 │   └── .gitignore
 │
-├── configs                         # congigurations files, loaded at server startup
-│   ├── dev.env                 
-│   └── prod.env          
-│
 ├── build                           # build scripts
 │   └── Taskfile.yaml               # building task configuration, ic. autobuild the front
 │
-├── cmd
-│   └── linkerpod                   # the linkerpod CLI command required to run the SPA server
-│       └── linkerpod.go          
-│
 ├── pkg
-│   ├── spa                         # SPA main package
-│   │   ├── webserver.go                   
-│   │   └── middleware.go                   
-│   ├── api                         # API package, code to serve API requests
-│   │   └── [*.go]                   
-│   ├── sdk                         # SDK package, for any client willing to call APIs
-│   │   └── [*.go]                   
 │
-├── web                             # source codes and assets required by the front, even server side templates
-│   ├── component
-│   │   ├── {componentname}.go      # every component in single go file
-│   │   └── {componentname}.html    # html template of the component, optional, can also be directly described in the go file
+├── web                             # source codes and assets required by the front
 │   ├── static
 │   │   ├── wasm_exec.js            # this file is mandatory and is provided by the go compiler
 │   │   └── [*.*]                   # any img, js 
@@ -78,9 +58,6 @@ linkerpod
 │       └── main.go                 # the front app entry point, uses components
 │
 ├── website                         # the self sufficient dir to serve the app in production, built with prod tasks (see Taskfile.yaml)
-│   ├── *.*
-│
-├── tmp                             # built with dev tasks (see Taskfile.yaml)
 │   ├── *.*
 
 ```
@@ -110,23 +87,6 @@ Start the server either in debug mode with the `F5` in vscode, or by running the
 
 ```bash
 $ task -t ./build/Taskfile.yaml dev_back
-```
-
-## Testing
-
-Useful read about [go data race detector](https://go.dev/doc/articles/race_detector#How_To_Use)
-
-To be able to test wasm code on the browser, you need to install [wasmbrowsertest](https://github.com/agnivade/wasmbrowsertest):
-
-```bash
-$ go install github.com/agnivade/wasmbrowsertest@latest
-$ mv $(go env GOBIN)/wasmbrowsertest $(go env GOBIN)/go_js_wasm_exec
-```
-
-Run the `unit_test` task to run both testing pkg and wasm:
-
-```bash
-$ task -t ./build/Taskfile.yaml unit_test
 ```
 
 ## Licence

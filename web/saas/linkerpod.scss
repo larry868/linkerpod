@@ -1,0 +1,14 @@
+@charset "utf-8";
+
+$primary: #058ED9;
+$link: #DB0690;
+
+$info: #D7EBFF;
+$success: #90DB06;
+$warning: #ffd100;
+$danger: #DB0906;
+
+
+@import "../bulma-0.9.4/bulma/bulma.sass";
+
+@import "ick.scss";

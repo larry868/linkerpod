@@ -7,54 +7,21 @@ interval: '1000ms'
 
 tasks:
 
-  build_website:
+#> task -t ./build/Taskfile.yaml build
+  build:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf ./website
       - mkdir -p ./website
-      - cp -R ./web/static/** ./website/
-      - GOARCH=wasm GOOS=js go build -o ./website/static/spa.wasm ./web/wasm/main.go
-      - go build -o ./website/linkerpod ./cmd/linkerpod/linkerpod.go
+      - cp -R ./web/static/** ./website
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm/webapp.go
 
-  unit_test:
-    dir: '{{.USER_WORKING_DIR}}'
-    cmds:
-      - go test -cover -race ./pkg/...
-      - GOARCH=wasm GOOS=js go test -cover ./web/...
-
-  dev_wasm:
+#> task -t ./build/Taskfile.yaml dev --watch
+  dev:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
-      - "web/wasm/main.go"
-    cmds: 
-      - GOARCH=wasm GOOS=js go build -o ./tmp/website/spa.wasm ./web/wasm/main.go
-
-  dev_components:
-    dir: '{{.USER_WORKING_DIR}}'
-    sources: 
-      - "web/component/**/*"
-      - "pkg/icecake/**/*"
-    cmds: 
-      - GOARCH=wasm GOOS=js go build -o ./tmp/website/spa.wasm ./web/wasm/main.go
-
-  dev_static: 
-    dir: '{{.USER_WORKING_DIR}}'
-    sources: 
+      - "web/wasm/webapp.go"
       - "./web/static/**/*"
     cmds: 
-      - mkdir -p ./tmp/website
-      - cp -R ./web/static/** ./tmp/website/
-
-  # launch it with --watch 
-  dev_front:
-    dir: '{{.USER_WORKING_DIR}}'
-    deps: 
-      - task: dev_static
-      - task: dev_components
-      - task: dev_wasm
-
-  dev_back:
-    dir: '{{.USER_WORKING_DIR}}'
-    ignore_error: true
-    cmds: 
-      - go run ./cmd/linkerpod/linkerpod.go --env=./configs/dev
+      - cp -R ./web/static/** ./website
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm/webapp.go

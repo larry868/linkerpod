@@ -1,15 +1,15 @@
 
-spaInitWebAssembly();
+initWebAssembly();
 
 /*
 * Web Assembly
 */
 
-async function spaInitWebAssembly() {
-    ews = document.getElementById("spa-wasm-status");
+async function initWebAssembly() {
+    ews = document.getElementById("wasm-status");
 
-    if (!spaCanLoadWebAssembly()) {
-        msg = "unable to load the web assembly code with this useragant";
+    if (!canLoadWebAssembly()) {
+        msg = "unable to load the web assembly code with this useragent";
         if (ews !== null) {
             ews.innerText = msg;
         }
@@ -19,7 +19,7 @@ async function spaInitWebAssembly() {
 
     const goWasm = new Go()
 
-    WebAssembly.instantiateStreaming(fetch("spa.wasm"), goWasm.importObject)
+    WebAssembly.instantiateStreaming(fetch("webapp.wasm"), goWasm.importObject)
         .then((result) => {
             goWasm.run(result.instance)
         })
@@ -32,7 +32,7 @@ async function spaInitWebAssembly() {
         })
 }
 
-function spaCanLoadWebAssembly() {
+function canLoadWebAssembly() {
     return !/bot|googlebot|crawler|spider|robot|crawling/i.test(
         navigator.userAgent
     );

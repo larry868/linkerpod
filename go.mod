@@ -1,8 +1,3 @@
-module github.com/sunraylab/linkerpod
+module github.com/lolorenzo777/linkerpod
 
-go 1.19
-
-require (
-	github.com/gorilla/mux v1.8.0
-	github.com/joho/godotenv v1.4.0
-)
+go 1.20

@@ -5,7 +5,7 @@
 *.so
 *.dylib
 *_bin
-website/
+bulma-0.9.4/
 
 # Test binary, built with `go test -c`
 *.test
