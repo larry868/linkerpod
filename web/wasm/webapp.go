@@ -23,7 +23,7 @@ func main() {
 	fmt.Println("Go/WASM loaded.")
 
 	lmap := make(map[string]*LinkCardSnippet)
-	ys, err := DownloadYaml("linkerpod.yaml")
+	ys, err := DownloadYaml("./linkerpod.yaml")
 	if err != nil {
 		fmt.Println(err)
 	} else {
