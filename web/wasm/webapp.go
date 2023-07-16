@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"gopkg.in/yaml.v3"
@@ -22,8 +23,14 @@ func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded.")
 
+	u, errp := url.Parse(dom.Doc().Body().BaseURI())
+	if errp != nil {
+		fmt.Println("parsing error:", errp.Error())
+	}
+	u = u.JoinPath("./linkerpod.yaml")
+
 	lmap := make(map[string]*LinkCardSnippet)
-	ys, err := DownloadYaml("./linkerpod.yaml")
+	ys, err := DownloadYaml(u.String())
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -51,6 +58,8 @@ type YamlStruct struct {
 }
 
 func DownloadYaml(url string) (*YamlStruct, error) {
+	fmt.Println("DownloadYaml:", url)
+
 	buf := &bytes.Buffer{}
 	err := DownloadFile(buf, url)
 	if err != nil {
