@@ -1,21 +1,35 @@
-# Linkerpod web3 app
+# Linkerpod
 
-Linkerpod allows to reference a set of URL links (aka. social media profiles), personnal info, and web3 public keys to a single sharable link.
+Linkerpod allows to reference a set of URL links (aka. social media profiles), personnal info like web3 public keys, and monitoring informations to a single page and sharable link.
 
 Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
+
+## Promises
 
 - build your own page of links in seconds
 - stop spending time to look for your links
 - get you public keys or your IDs instantly
-- share your collection of inks
+- share collections of links
+- monitor your favorite website or homelab
+- display information from API queries
 
 Linkerpod is an experimental webapp written in go with the [icecake framework](icecake.dev).
 
 Sources of inspiration: 
 - https://dashy.to/
-- https://github.com/maxence-charriere/go-app
+- https://linktr.ee/
+
+## Demo
+
+[linkerpod demo]()
 
 ## Usage
+
+The simplest way is to fork this repo and to activate [GitHub Pages](https://pages.github.com/):
+
+1. fork linkerpod 
+1. update the `/docs/linkerpod.yaml` file with your own links
+1. activate GitHub Pages on your repo, and specify `deploy from a branch` and choose `master` and `/docs`
 
 ## Roadmap
 
@@ -26,7 +40,6 @@ In a futur version, linkerpod could implement some Web3 technologies such as :
 - work with avatar
 - encrypt data
 - reward with tokens
-
 
 ## Tech
 
