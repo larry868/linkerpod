@@ -48,19 +48,29 @@ linkerpod
 ├── build                           # build scripts
 │   └── Taskfile.yaml               # building task configuration, ic. autobuild the front
 │
-├── pkg
-│
 ├── web                             # source codes and assets required by the front
+│   ├── bulma-0.9.4                 # bulma saas files
+│   ├── saas
+│   │   ├── ick.scss                # required by icecake
+│   │   └── linkerpod.scss          # customized saas
+│   │
 │   ├── static
-│   │   ├── wasm_exec.js            # this file is mandatory and is provided by the go compiler
-│   │   └── [*.*]                   # any img, js 
+│   │   ├── assets
+│   │   │   ├── wasm_exec.js        # this file is mandatory and is provided by the go compiler
+│   │   │   ├── wasm_loader.js      # this file is required to load the wasm code
+│   │   │   └── [*.*]               # any img, js and other assets
+│   │   └── index.html              # The single and unique linkerpod html file
+│   │
 │   └── wasm
-│       └── main.go                 # the front app entry point, uses components
+│       └── webapp.go               # the front app entry point, uses components
 │
 ├── website                         # the self sufficient dir to serve the app in production, built with prod tasks (see Taskfile.yaml)
 │   ├── *.*
 
 ```
+
+The `./web/bulma-0.9.4` directory is not sync with git. It need to be downloaded on the [bulma site](https://bulma.io/documentation/customize/with-sass-cli/)
+
 
 ### About Web Assembly with go
 
@@ -72,21 +82,10 @@ Go provides a specific js file called `wasm_exec.js` that need to be served by y
 
 We use ``task`` as task runner. See [Taskfile Installation](https://taskfile.dev/installation/) doc to install it.
 
-In development mode run the `dev_front` task from the root path with the `--watch flag`:
+In development mode run the `dev` task from the root path with the `--watch flag`:
 
 ```bash
-$ task -t ./build/Taskfile.yaml dev_front --watch
-```
-
-This task:
-1. moves any changed files in ``./web/static/`` to ``./tmp/website/``
-1. builds/rebuilds any frontend components and the .wasm file
-1. builds/rebuilds the ``./tmp/website/spa.wasm`` file according to changes in the ``web/wasm/main.go``
-
-Start the server either in debug mode with the `F5` in vscode, or by running the `dev_back` task:
-
-```bash
-$ task -t ./build/Taskfile.yaml dev_back
+$ task -t ./build/Taskfile.yaml dev --watch
 ```
 
 ## Licence
