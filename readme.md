@@ -25,15 +25,18 @@ Sources of inspiration:
 
 ## Usage
 
-The simplest way is to fork this repo and to activate [GitHub Pages](https://pages.github.com/):
+### GitHub Pages Install 
+
+Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 1. fork linkerpod 
-1. update the `/docs/linkerpod.yaml` file with your own links
-1. activate GitHub Pages on your repo, and specify `deploy from a branch` and choose `master` and `/docs`
+1. customize the `/docs/linkerpod.yaml` file with your own links
+1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`
+
 
 ## Roadmap
 
-In a futur version, linkerpod could implement some Web3 technologies such as :
+In a futur version linkerpod could implement some Web3 technologies such as :
 - decentralized storage
 - authentication with a wallet
 - display NFT
@@ -98,8 +101,18 @@ We use ``task`` as task runner. See [Taskfile Installation](https://taskfile.dev
 In development mode run the `dev` task from the root path with the `--watch flag`:
 
 ```bash
-$ task -t ./build/Taskfile.yaml dev --watch
+task -t ./build/Taskfile.yaml dev --watch
 ```
+
+Run the `build` task to compile the linkerdpod wasm file and to rebuild the `/docs` directory.
+
+```bash
+task -t ./build/Taskfile.yaml build
+```
+
+:warning: The `build` task takes the `linkerpod.yaml` file available in the `/web/static/` directory. Be sure to replace it with your own file.
+
+If you've tuned `/web/saas/linkerpod.scss` you need to rebuild `.css` files according to your saas configuration.
 
 ## Licence
 

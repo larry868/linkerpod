@@ -19,6 +19,7 @@ import (
 // The main func is required by the wasm GO builder.
 // outputs will appears in the console of the browser
 func main() {
+	// TODO: handle id="wasm-status" element in the html in case wasm not loading (see. wasm_loader.js)
 
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded.")
@@ -32,6 +33,7 @@ func main() {
 	lmap := make(map[string]*LinkCardSnippet)
 	ys, err := DownloadYaml(u.String())
 	if err != nil {
+		// TODO: hendle error with ick.console and display a message to the user
 		fmt.Println(err)
 	} else {
 		for k, l := range ys.Links {
