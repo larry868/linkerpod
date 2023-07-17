@@ -14,6 +14,7 @@ tasks:
       - rm -rf ./docs
       - mkdir -p ./docs
       - cp -R ./web/static/** ./docs
+      - cp ./web/static/.nojekyll ./docs
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml dev --watch
