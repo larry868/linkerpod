@@ -29,15 +29,22 @@ var (
 			SetOutlined(true).
 			SetDisabled(true).
 			SetSize(ick.SIZE_SMALL)
-	_isShrunk bool = false
-	_cardMap  map[string]*LinkCardSnippet
+	_isShrunk  bool = false
+	_btnLayout      = ickui.Button("Tiles", "").
+			SetId("btnlayout").
+			SetColor(ick.COLOR_PRIMARY).
+			SetOutlined(true).
+			SetDisabled(true).
+			SetSize(ick.SIZE_SMALL)
+	_isTiles bool = false
+	_cardMap map[string]*LinkCardSnippet
 )
 
 // The main func is required by the wasm GO builder.
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running...")
+	fmt.Println("Go/WASM loaded and running.....................")
 	verbose.IsOn = true
 	verbose.IsDebugging = true
 
@@ -51,13 +58,25 @@ func main() {
 		app := dom.Id("webapp")
 		app.InsertText(dom.INSERT_BODY, "")
 		_btnShrink.OnClick = OnToggleShrink
-		app.InsertSnippet(dom.INSERT_BODY, ick.Elem("div", `class="block"`, _btnShrink))
+		_btnLayout.OnClick = OnToggleLayout
+		app.InsertSnippet(dom.INSERT_BODY,
+			ick.Elem("div", `class="level"`,
+				ick.Elem("div", `class="level-left"`,
+					ick.Elem("div", `class="level-item"`, _btnShrink),
+					ick.Elem("div", `class="level-item"`, _btnLayout))))
 
+		app.InsertRawHTML(dom.INSERT_LAST_CHILD, `
+		<div id="layout">
+		</div>
+		`)
+
+		layout := dom.Id("layout")
 		for _, c := range _cardMap {
-			app.InsertSnippet(dom.INSERT_LAST_CHILD, c)
+			layout.InsertSnippet(dom.INSERT_LAST_CHILD, c)
 		}
 
 		_btnShrink.SetDisabled(false)
+		_btnLayout.SetDisabled(false)
 		fmt.Printf("Linkerpod loaded in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
@@ -74,10 +93,28 @@ func OnToggleShrink() {
 		_isShrunk = true
 		_btnShrink.SetTitle("Expand")
 	}
+
 	for _, c := range _cardMap {
 		c.SetShrunk(_isShrunk)
 	}
+
 	_btnShrink.DOM.Blur()
+}
+
+func OnToggleLayout() {
+	if _isTiles {
+		_isTiles = false
+		_btnLayout.SetTitle("Tiles")
+	} else {
+		_isTiles = true
+		_btnLayout.SetTitle("List")
+	}
+
+	for _, c := range _cardMap {
+		c.DOM.SetClassIf(_isTiles, "mr-4")
+	}
+	dom.Id("layout").SetClassIf(_isTiles, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start")
+	_btnLayout.DOM.Blur()
 }
 
 /******************************************************************************/

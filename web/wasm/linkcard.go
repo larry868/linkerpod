@@ -46,7 +46,7 @@ func (lnk *LinkCardSnippet) SetHRef(href *url.URL) *LinkCardSnippet {
 
 func (lnk *LinkCardSnippet) SetShrunk(shrunk bool) *LinkCardSnippet {
 	lnk.IsShrunk = shrunk
-	lnk.DOM.SetClassIf(!shrunk, "box")
+	lnk.DOM.SetClassIf(!shrunk, "p-2 mb-2")
 	return lnk
 }
 
@@ -54,7 +54,7 @@ func (lnk *LinkCardSnippet) SetShrunk(shrunk bool) *LinkCardSnippet {
 
 // BuildTag builds the tag used to render the html element.
 func (lnk *LinkCardSnippet) BuildTag() ickcore.Tag {
-	lnk.Tag().SetTagName("div").AddClass("card").AddClassIf(!lnk.IsShrunk, "box")
+	lnk.Tag().SetTagName("div").AddClass("card").SetClassIf(!lnk.IsShrunk, "p-2 mb-2")
 
 	return *lnk.Tag()
 }
