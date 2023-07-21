@@ -7,47 +7,40 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
+	"time"
 
+	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"
+	"github.com/icecake-framework/icecake/pkg/ick"
+	"github.com/icecake-framework/icecake/pkg/ickcore"
 	"gopkg.in/yaml.v3"
 )
 
 // The main func is required by the wasm GO builder.
 // outputs will appears in the console of the browser
 func main() {
-	// TODO: handle id="wasm-status" element in the html in case wasm not loading (see. wasm_loader.js)
-
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded.")
+	fmt.Println("Go/WASM loaded and running...")
+	start := time.Now()
 
-	u, errp := url.Parse(dom.Doc().Body().BaseURI())
-	if errp != nil {
-		fmt.Println("parsing error:", errp.Error())
-	}
-	u = u.JoinPath("./linkerpod.yaml")
-
-	lmap := make(map[string]*LinkCardSnippet)
-	ys, err := DownloadYaml(u.String())
+	lmap, err := DownloadLinks()
 	if err != nil {
-		// TODO: hendle error with ick.console and display a message to the user
-		fmt.Println(err)
+		console.Errorf(err.Error())
+		dom.Id("webapp").InsertSnippet(dom.INSERT_LAST_CHILD, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
 	} else {
-		for k, l := range ys.Links {
-			lmap[k] = LinkCard(k).ParseHRef(l.Link)
+		app := dom.Id("webapp")
+		for _, l := range lmap {
+			app.InsertSnippet(dom.INSERT_LAST_CHILD, l)
 		}
-	}
-
-	app := dom.Id("app")
-	for _, l := range lmap {
-		app.InsertSnippet(dom.INSERT_LAST_CHILD, l)
+		fmt.Printf("Linkerpod loaded in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
 	// let's go
-	fmt.Println("Go/WASM listening browser events")
+	fmt.Println("Go/WASM ready and listening browser events")
 	<-c
 }
 
@@ -59,43 +52,60 @@ type YamlStruct struct {
 	Links map[string]YamlLinkEntry `yaml:"links"`
 }
 
-func DownloadYaml(url string) (*YamlStruct, error) {
-	fmt.Println("DownloadYaml:", url)
-
-	buf := &bytes.Buffer{}
-	err := DownloadFile(buf, url)
+func DownloadLinks() (map[string]*LinkCardSnippet, error) {
+	lmap := make(map[string]*LinkCardSnippet)
+	ys, err := DownloadYaml("linkerpod.yaml")
 	if err != nil {
-		return nil, fmt.Errorf("DownloadYaml: %+w", err)
+		return nil, fmt.Errorf("DownloadYaml: %w", err)
+	}
+
+	for k, l := range ys.Links {
+		if l.Link == "" {
+			console.Warnf("[%s] missing link", k)
+		} else {
+			lmap[k] = LinkCard(k).ParseHRef(l.Link)
+		}
+	}
+
+	if len(lmap) == 0 {
+		return nil, fmt.Errorf("empty pod")
+	}
+
+	return lmap, nil
+}
+
+func DownloadYaml(url string) (*YamlStruct, error) {
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Permissions-Policy", "interest-cohort=()")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, errors.New(resp.Status)
+	}
+
+	// Write the body to the writer
+	buf := &bytes.Buffer{}
+	n, err := io.Copy(buf, resp.Body)
+	if err == nil && n == 0 {
+		err = errors.New("empty yaml file")
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	ys := &YamlStruct{}
 	err = yaml.Unmarshal(buf.Bytes(), ys)
 	if err != nil {
-		return nil, fmt.Errorf("DownloadYaml: %+w", err)
+		return nil, err
 	}
-
-	//fmt.Println("YAML=> %+v", ys)
 
 	return ys, nil
-}
-
-func DownloadFile(w io.Writer, url string) error {
-	// Get the data
-	client := http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Permissions-Policy", "interest-cohort=()")
-
-	resp, err := client.Do(req)
-	// resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Write the body to the writer
-	_, err = io.Copy(w, resp.Body)
-	return err
 }

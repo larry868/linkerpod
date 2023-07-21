@@ -1,4 +1,5 @@
 
+const start = Date.now();
 initWebAssembly();
 
 /*
@@ -6,14 +7,13 @@ initWebAssembly();
 */
 
 async function initWebAssembly() {
-    ews = document.getElementById("wasm-status");
+    ews = document.getElementById("webapp");
 
     if (!canLoadWebAssembly()) {
-        msg = "unable to load the web assembly code with this useragent";
         if (ews !== null) {
-            ews.innerText = msg;
+            ews.innerText = "Unable to load the App in this browser.";
         }
-        console.error(msg);
+        console.error("unable to load the web assembly code with this useragent");
         return;
     }
 
@@ -21,14 +21,15 @@ async function initWebAssembly() {
 
     WebAssembly.instantiateStreaming(fetch("webapp.wasm"), goWasm.importObject)
         .then((result) => {
-            goWasm.run(result.instance)
+            goWasm.run(result.instance);
+            const end = Date.now();
+            console.log("webapp.wasm code loaded in " + (end - start) + "ms");
         })
         .catch((err) => {
-            msg = "loading wasm failed:" + err
             if (ews !== null) {
-                ews.innerText = msg;
+                ews.innerText = "Error loading the App.";
             }
-            console.error(msg);
+            console.error("loading wasm failed:" + err);
         })
 }
 
@@ -37,3 +38,7 @@ function canLoadWebAssembly() {
         navigator.userAgent
     );
 }
+
+function ickError(msg) { console.error(msg) }
+
+function ickWarn(msg) { console.warn(msg) }
