@@ -19,7 +19,7 @@ tasks:
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml build2website
-  build2docs:
+  build2website:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf ./website
