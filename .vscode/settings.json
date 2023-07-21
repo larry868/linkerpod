@@ -1,5 +1,5 @@
 {
-    "liveServer.settings.root": "/docs",
+    // "liveServer.settings.root": "/website",
     "gopls": {
         "build.buildFlags": [
             "-tags=js,wasm"

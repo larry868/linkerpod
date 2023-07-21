@@ -24,7 +24,7 @@ tasks:
     cmds:
       - rm -rf ./website
       - mkdir -p ./website
-      - cp -R ./web/static/** ./docswebsite
+      - cp -R ./web/static/** ./website
       - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml dev --watch
@@ -34,5 +34,5 @@ tasks:
       - "web/wasm/*"
       - "./web/static/**/*"
     cmds: 
-      - cp -R ./web/static/** ./docs
-      - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
+      - cp -R ./web/static/** ./website
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
