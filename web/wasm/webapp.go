@@ -25,14 +25,15 @@ import (
 func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded and running...")
-	start := time.Now()
 
+	start := time.Now()
 	lmap, err := DownloadLinks()
 	if err != nil {
 		console.Errorf(err.Error())
-		dom.Id("webapp").InsertSnippet(dom.INSERT_LAST_CHILD, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
+		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
 	} else {
 		app := dom.Id("webapp")
+		app.InsertText(dom.INSERT_BODY, "")
 		for _, l := range lmap {
 			app.InsertSnippet(dom.INSERT_LAST_CHILD, l)
 		}
