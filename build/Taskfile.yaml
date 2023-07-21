@@ -7,15 +7,25 @@ interval: '1000ms'
 
 tasks:
 
-#> task -t ./build/Taskfile.yaml build
-  build:
+#> task -t ./build/Taskfile.yaml build2docs
+  build2docs:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf ./docs
       - mkdir -p ./docs
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
+      - cp ./docs/linkerpod.html ./docs/index.html
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
+
+#> task -t ./build/Taskfile.yaml build2website
+  build2docs:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - rm -rf ./website
+      - mkdir -p ./website
+      - cp -R ./web/static/** ./docswebsite
+      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml dev --watch
   dev:
