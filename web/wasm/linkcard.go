@@ -4,20 +4,22 @@ import (
 	"io"
 	"net/url"
 
+	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
 )
 
 type LinkCardSnippet struct {
 	ickcore.BareSnippet
+	dom.UI
 
-	Name string   // link card name, must be unique
-	HRef *url.URL // URL link card
+	Name     string   // link card name, must be unique
+	HRef     *url.URL // URL link card
+	IsShrunk bool
 }
 
 // Ensuring LinkCardSnippet implements the right interface
-var _ ickcore.ContentComposer = (*LinkCardSnippet)(nil)
-var _ ickcore.TagBuilder = (*LinkCardSnippet)(nil)
+var _ dom.UIComposer = (*LinkCardSnippet)(nil)
 
 func LinkCard(name string) *LinkCardSnippet {
 	n := new(LinkCardSnippet)
@@ -42,11 +44,18 @@ func (lnk *LinkCardSnippet) SetHRef(href *url.URL) *LinkCardSnippet {
 	return lnk
 }
 
+func (lnk *LinkCardSnippet) SetShrunk(shrunk bool) *LinkCardSnippet {
+	lnk.IsShrunk = shrunk
+	lnk.DOM.SetClassIf(!shrunk, "box")
+	return lnk
+}
+
 /******************************************************************************/
 
 // BuildTag builds the tag used to render the html element.
 func (lnk *LinkCardSnippet) BuildTag() ickcore.Tag {
-	lnk.Tag().SetTagName("div").AddClass("card", "box")
+	lnk.Tag().SetTagName("div").AddClass("card").AddClassIf(!lnk.IsShrunk, "box")
+
 	return *lnk.Tag()
 }
 

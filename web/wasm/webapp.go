@@ -16,8 +16,21 @@ import (
 	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/ick"
+	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
+	"github.com/lolorenzo777/verbose"
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	_btnShrink = ickui.Button("Shrink", "").
+			SetId("btnshrink").
+			SetColor(ick.COLOR_PRIMARY).
+			SetOutlined(true).
+			SetDisabled(true).
+			SetSize(ick.SIZE_SMALL)
+	_isShrunk bool = false
+	_cardMap  map[string]*LinkCardSnippet
 )
 
 // The main func is required by the wasm GO builder.
@@ -25,18 +38,26 @@ import (
 func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded and running...")
+	verbose.IsOn = true
+	verbose.IsDebugging = true
 
 	start := time.Now()
-	lmap, err := DownloadLinks()
+	var err error
+	_cardMap, err = DownloadLinks()
 	if err != nil {
 		console.Errorf(err.Error())
 		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
 	} else {
 		app := dom.Id("webapp")
 		app.InsertText(dom.INSERT_BODY, "")
-		for _, l := range lmap {
-			app.InsertSnippet(dom.INSERT_LAST_CHILD, l)
+		_btnShrink.OnClick = OnToggleShrink
+		app.InsertSnippet(dom.INSERT_BODY, ick.Elem("div", `class="block"`, _btnShrink))
+
+		for _, c := range _cardMap {
+			app.InsertSnippet(dom.INSERT_LAST_CHILD, c)
 		}
+
+		_btnShrink.SetDisabled(false)
 		fmt.Printf("Linkerpod loaded in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
@@ -44,6 +65,22 @@ func main() {
 	fmt.Println("Go/WASM ready and listening browser events")
 	<-c
 }
+
+func OnToggleShrink() {
+	if _isShrunk {
+		_isShrunk = false
+		_btnShrink.SetTitle("Shrink")
+	} else {
+		_isShrunk = true
+		_btnShrink.SetTitle("Expand")
+	}
+	for _, c := range _cardMap {
+		c.SetShrunk(_isShrunk)
+	}
+	_btnShrink.DOM.Blur()
+}
+
+/******************************************************************************/
 
 type YamlLinkEntry struct {
 	Link string `yaml:"link"`
