@@ -29,15 +29,14 @@ var (
 			SetOutlined(true).
 			SetDisabled(true).
 			SetSize(ick.SIZE_SMALL)
-	_isShrunk  bool = false
-	_btnLayout      = ickui.Button("Tiles", "").
+	_btnLayout = ickui.Button("Tiles", "").
 			SetId("btnlayout").
 			SetColor(ick.COLOR_PRIMARY).
 			SetOutlined(true).
 			SetDisabled(true).
 			SetSize(ick.SIZE_SMALL)
-	_isTiles bool = false
-	_cardMap map[string]*LinkCardSnippet
+
+	_lp LinkerPod
 )
 
 // The main func is required by the wasm GO builder.
@@ -50,34 +49,27 @@ func main() {
 
 	start := time.Now()
 	var err error
-	_cardMap, err = DownloadLinks()
+	_lp, err = DownloadData()
 	if err != nil {
 		console.Errorf(err.Error())
 		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
 	} else {
 		app := dom.Id("webapp")
-		app.InsertText(dom.INSERT_BODY, "")
+		//app.InsertText(dom.INSERT_BODY, "")
+		app.InsertSnippet(dom.INSERT_BODY, &_lp)
+		_lp.Mount()
+
 		_btnShrink.OnClick = OnToggleShrink
 		_btnLayout.OnClick = OnToggleLayout
-		app.InsertSnippet(dom.INSERT_BODY,
+		app.InsertSnippet(dom.INSERT_FIRST_CHILD,
 			ick.Elem("div", `class="level"`,
 				ick.Elem("div", `class="level-left"`,
 					ick.Elem("div", `class="level-item"`, _btnShrink),
 					ick.Elem("div", `class="level-item"`, _btnLayout))))
 
-		app.InsertRawHTML(dom.INSERT_LAST_CHILD, `
-		<div id="layout">
-		</div>
-		`)
-
-		layout := dom.Id("layout")
-		for _, c := range _cardMap {
-			layout.InsertSnippet(dom.INSERT_LAST_CHILD, c)
-		}
-
 		_btnShrink.SetDisabled(false)
 		_btnLayout.SetDisabled(false)
-		fmt.Printf("Linkerpod loaded in %v\n", time.Since(start).Round(time.Millisecond))
+		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
 	// let's go
@@ -86,67 +78,80 @@ func main() {
 }
 
 func OnToggleShrink() {
-	if _isShrunk {
-		_isShrunk = false
+	if _lp.IsShrunk {
 		_btnShrink.SetTitle("Shrink")
+		_lp.SetShrunk(false)
 	} else {
-		_isShrunk = true
 		_btnShrink.SetTitle("Expand")
+		_lp.SetShrunk(true)
 	}
-
-	for _, c := range _cardMap {
-		c.SetShrunk(_isShrunk)
-	}
-
 	_btnShrink.DOM.Blur()
 }
 
 func OnToggleLayout() {
-	if _isTiles {
-		_isTiles = false
+	if _lp.IsTiles {
 		_btnLayout.SetTitle("Tiles")
+		_lp.SetTiles(false)
 	} else {
-		_isTiles = true
 		_btnLayout.SetTitle("List")
+		_lp.SetTiles(true)
 	}
-
-	for _, c := range _cardMap {
-		c.DOM.SetClassIf(_isTiles, "mr-4")
-	}
-	dom.Id("layout").SetClassIf(_isTiles, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start")
 	_btnLayout.DOM.Blur()
 }
 
 /******************************************************************************/
+
+type YamlMiniPod struct {
+	Icon  string `yaml:"icon"`
+	Links []string
+}
 
 type YamlLinkEntry struct {
 	Link string `yaml:"link"`
 }
 
 type YamlStruct struct {
-	Links map[string]YamlLinkEntry `yaml:"links"`
+	Links    map[string]YamlLinkEntry `yaml:"links"`
+	MiniPods map[string]YamlMiniPod   `yaml:"minipods"`
 }
 
-func DownloadLinks() (map[string]*LinkCardSnippet, error) {
-	lmap := make(map[string]*LinkCardSnippet)
+func DownloadData() (LinkerPod, error) {
+
+	lp := NewLinkerPod()
+
+	// download yaml file
 	ys, err := DownloadYaml("linkerpod.yaml")
 	if err != nil {
-		return nil, fmt.Errorf("DownloadYaml: %w", err)
+		return *lp, fmt.Errorf("DownloadData: %w", err)
 	}
 
-	for k, l := range ys.Links {
-		if l.Link == "" {
-			console.Warnf("[%s] missing link", k)
+	// parse lp.LinksMap
+	for k, v := range ys.Links {
+		if v.Link == "" {
+			console.Warnf("DownloadData.links: [%s] missing link", k)
 		} else {
-			lmap[k] = LinkCard(k).ParseHRef(l.Link)
+			lp.LinksMap[k] = Card(k).ParseHRef(v.Link)
 		}
 	}
 
-	if len(lmap) == 0 {
-		return nil, fmt.Errorf("empty pod")
+	if len(lp.LinksMap) == 0 {
+		return *lp, fmt.Errorf("empty pod")
 	}
 
-	return lmap, nil
+	// parse lp.MiniPodMap
+	for k, v := range ys.MiniPods {
+		lp.MiniPodMap[k] = MiniPod(k, v.Icon)
+		for _, l := range v.Links {
+			if c, found := lp.LinksMap[l]; found {
+				lp.MiniPodMap[k].AppendCard(*c)
+				c.InMiniPods += 1
+			} else {
+				console.Warnf("DownloadData.minipods: link %q not referenced", l)
+			}
+		}
+	}
+
+	return *lp, nil
 }
 
 func DownloadYaml(url string) (*YamlStruct, error) {

@@ -1,5 +1,6 @@
 # example of linkerpod yaml file
 ---
+# map of links
 links:
   Proton Mail:
     link: https://mail.proton.me/u/0/inbox
@@ -23,6 +24,31 @@ links:
     link: https://medium.com
   Bitcoin Whitepaper:
     link: https://bitcoin.org/bitcoin.pdf
+
+# map of minipods
+minipods:
+  Social: 
+    icon: "bi bi-chat"
+    links: 
+      - "Twitter"
+      - "Pinterest"
+      - "Linkedin"
+  Office:
+    icon: "bi bi-file-text"
+    links: 
+      - "Proton Mail"
+      - "Simple Login"
+  IT OPS:
+    icon: "bi bi-hdd-network"
+    links:
+      - Digital Ocean
+      - Gandi
+      - OVH
+      - Github
+
+  White Papers:
+    links:
+      - Bitcoin Whitepaper
 
 # that's it
 ...
