@@ -30,7 +30,7 @@ func MiniPod(name string, iconkey string) *MiniPodSnippet {
 	if iconkey != "" {
 		n.Icon.Key = iconkey
 	} else {
-		n.Icon.Key = "empty"
+		n.Icon.Key = "bi bi-dot"
 	}
 	return n
 }

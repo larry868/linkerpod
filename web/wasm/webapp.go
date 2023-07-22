@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/icecake-framework/icecake/pkg/console"
@@ -18,7 +19,6 @@ import (
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
-	"github.com/lolorenzo777/verbose"
 	"gopkg.in/yaml.v3"
 )
 
@@ -43,25 +43,44 @@ var (
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running.....................")
-	verbose.IsOn = true
-	verbose.IsDebugging = true
+	fmt.Println("Go/WASM loaded and running...")
+	// verbose.IsOn = true
+	// verbose.IsDebugging = true
+
+	var err error
 
 	start := time.Now()
-	var err error
-	_lp, err = DownloadData()
-	if err != nil {
-		console.Errorf(err.Error())
-		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
-	} else {
-		app := dom.Id("webapp")
-		//app.InsertText(dom.INSERT_BODY, "")
-		app.InsertSnippet(dom.INSERT_BODY, &_lp)
+
+	// extract query if any
+	yaml := "linkerpod.yaml"
+	u := dom.Doc().Body().BaseURI()
+	q := u.Query()
+	if len(q) > 0 {
+		pod := q["pod"]
+		if len(pod) > 0 && pod[0] != "" {
+			qbase := path.Base(pod[0])
+			qext := path.Ext(pod[0])
+			if (qext != "" && qext != ".yaml") || (qbase != pod[0]) {
+				err = errors.New("malformed query")
+			} else if qext == ".yaml" {
+				yaml = qbase
+			} else {
+				yaml = qbase + ".yaml"
+			}
+		}
+	}
+
+	if err == nil {
+		_lp, err = DownloadData(yaml)
+	}
+
+	if err == nil {
+		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_lp)
 		_lp.Mount()
 
 		_btnShrink.OnClick = OnToggleShrink
 		_btnLayout.OnClick = OnToggleLayout
-		app.InsertSnippet(dom.INSERT_FIRST_CHILD,
+		dom.Id("webapp").InsertSnippet(dom.INSERT_FIRST_CHILD,
 			ick.Elem("div", `class="level"`,
 				ick.Elem("div", `class="level-left"`,
 					ick.Elem("div", `class="level-item"`, _btnShrink),
@@ -70,6 +89,11 @@ func main() {
 		_btnShrink.SetDisabled(false)
 		_btnLayout.SetDisabled(false)
 		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
+	}
+
+	if err != nil {
+		console.Errorf(err.Error())
+		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
 	}
 
 	// let's go
@@ -115,12 +139,12 @@ type YamlStruct struct {
 	MiniPods map[string]YamlMiniPod   `yaml:"minipods"`
 }
 
-func DownloadData() (LinkerPod, error) {
+func DownloadData(yaml string) (LinkerPod, error) {
 
 	lp := NewLinkerPod()
 
 	// download yaml file
-	ys, err := DownloadYaml("linkerpod.yaml")
+	ys, err := DownloadYaml(yaml)
 	if err != nil {
 		return *lp, fmt.Errorf("DownloadData: %w", err)
 	}

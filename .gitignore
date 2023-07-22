@@ -7,8 +7,9 @@
 *_bin
 bulma-0.9.4/
 
-# Test binary, built with `go test -c`
+# Test files 
 *.test
+private.yaml
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
@@ -22,6 +23,3 @@ bulma-0.9.4/
 *.bak
 .task
 tmp/
-
-
-
