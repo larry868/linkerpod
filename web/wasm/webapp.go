@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/icecake-framework/icecake/pkg/console"
@@ -19,6 +20,7 @@ import (
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
+	"github.com/lolorenzo777/verbose"
 	"gopkg.in/yaml.v3"
 )
 
@@ -44,14 +46,15 @@ var (
 func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded and running...")
-	// verbose.IsOn = true
-	// verbose.IsDebugging = true
+	verbose.IsOn = true
+	verbose.IsDebugging = true
 
 	var err error
 
 	start := time.Now()
 
 	// extract query if any
+	// TODO: encode the query
 	yaml := "linkerpod.yaml"
 	u := dom.Doc().Body().BaseURI()
 	q := u.Query()
@@ -126,12 +129,18 @@ func OnToggleLayout() {
 /******************************************************************************/
 
 type YamlMiniPod struct {
-	Icon  string `yaml:"icon"`
-	Links []string
+	Icon  string     `yaml:"icon"`
+	Links []YamlLink `yaml:"links"`
+}
+
+type YamlLink struct {
+	Id  string `yaml:"id"`
+	ABC string `yaml:"abc"`
 }
 
 type YamlLinkEntry struct {
 	Link string `yaml:"link"`
+	ABC  string `yaml:"abc"`
 }
 
 type YamlStruct struct {
@@ -152,9 +161,13 @@ func DownloadData(yaml string) (LinkerPod, error) {
 	// parse lp.LinksMap
 	for k, v := range ys.Links {
 		if v.Link == "" {
-			console.Warnf("DownloadData.links: [%s] missing link", k)
+			console.Warnf("DownloadData.links: [%s] missing link id", k)
 		} else {
-			lp.LinksMap[k] = Card(k).ParseHRef(v.Link)
+			c := Card(k).ParseHRef(v.Link)
+			if abc := strings.ToLower(strings.Trim(v.ABC, " ")); abc != "" {
+				c.ABC = abc
+			}
+			lp.LinksMap[k] = c
 		}
 	}
 
@@ -163,14 +176,14 @@ func DownloadData(yaml string) (LinkerPod, error) {
 	}
 
 	// parse lp.MiniPodMap
-	for k, v := range ys.MiniPods {
-		lp.MiniPodMap[k] = MiniPod(k, v.Icon)
-		for _, l := range v.Links {
-			if c, found := lp.LinksMap[l]; found {
-				lp.MiniPodMap[k].AppendCard(*c)
+	for k, mp := range ys.MiniPods {
+		lp.MiniPodMap[k] = MiniPod(k, mp.Icon)
+		for _, mpl := range mp.Links {
+			if c, found := lp.LinksMap[mpl.Id]; found {
+				lp.MiniPodMap[k].InsertCard(*c, strings.ToLower(strings.Trim(mpl.ABC, " ")))
 				c.InMiniPods += 1
 			} else {
-				console.Warnf("DownloadData.minipods: link %q not referenced", l)
+				console.Warnf("DownloadData.minipods: link %q not referenced", mpl)
 			}
 		}
 	}

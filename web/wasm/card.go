@@ -17,6 +17,7 @@ type CardSnippet struct {
 	HRef       *url.URL // URL link card
 	IsShrunk   bool
 	InMiniPods int
+	ABC        string
 }
 
 // Ensuring LinkCardSnippet implements the right interface
@@ -25,6 +26,8 @@ var _ dom.UIComposer = (*CardSnippet)(nil)
 func Card(name string) *CardSnippet {
 	n := new(CardSnippet)
 	n.Name = name
+	n.ABC = "b"
+	n.Tag().SetId(n.Name)
 	return n
 }
 
@@ -54,7 +57,11 @@ func (card *CardSnippet) SetShrunk(shrunk bool) *CardSnippet {
 /******************************************************************************/
 
 func (card *CardSnippet) BuildTag() ickcore.Tag {
-	card.Tag().SetTagName("div").AddClass("card").SetClassIf(!card.IsShrunk, "p-2 mb-2")
+	card.Tag().
+		SetTagName("div").
+		AddClass("card").
+		SetClassIf(!card.IsShrunk, "p-2 mb-2").
+		SetAttributeIf(card.ABC != "", "data-abc", card.ABC)
 	return *card.Tag()
 }
 

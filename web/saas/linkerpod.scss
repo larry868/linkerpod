@@ -12,3 +12,11 @@ $danger: #DB0906;
 @import "../bulma-0.9.4/bulma/bulma.sass";
 
 @import "ick.scss";
+
+.hsplitter {
+    display: block;
+    margin-bottom: 0.5rem;
+    border-top: 1px solid #058ED9;
+    width: 100%;
+    height: 1px;
+}

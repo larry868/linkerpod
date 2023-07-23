@@ -4,6 +4,7 @@
 links:
   Proton Mail:
     link: https://mail.proton.me/u/0/inbox
+    abc: a
   Simple Login:
     link: https://simplelogin.io/
   Digital Ocean:
@@ -14,8 +15,10 @@ links:
     link: https://www.ovhcloud.com/
   Linkedin:
     link: https://www.linkedin.com/feed/
+    abc: a
   Twitter: 
     link: https://twitter.com/
+    abc: c
   Pinterest:
     link: https://www.pinterest.com/
   Github:
@@ -30,25 +33,25 @@ minipods:
   Social: 
     icon: "bi bi-chat"
     links: 
-      - "Twitter"
-      - "Pinterest"
-      - "Linkedin"
+      - {id: "Twitter"}
+      - {id: "Pinterest"}
+      - {id: "Linkedin", abc: b}
   Office:
     icon: "bi bi-file-text"
     links: 
-      - "Proton Mail"
-      - "Simple Login"
+      - {id: "Proton Mail"}
+      - {id: "Simple Login"}
   IT OPS:
     icon: "bi bi-hdd-network"
     links:
-      - Digital Ocean
-      - Gandi
-      - OVH
-      - Github
+      - {id: Digital Ocean}
+      - {id: Gandi}
+      - {id: OVH}
+      - {id: Github}
 
   White Papers:
     links:
-      - Bitcoin Whitepaper
+      - {id: Bitcoin Whitepaper}
 
 # that's it
 ...
