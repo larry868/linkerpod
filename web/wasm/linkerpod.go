@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"sort"
 	"strings"
@@ -78,7 +77,6 @@ func (mp *LinkerPod) Mount(at string) error {
 	})
 	emp := dom.Id("minipods")
 	for _, k := range kmp {
-		fmt.Printf("%+v --- %+v\n", _lp.MiniPodMap[k].Tag(), at)
 		if strings.ToLower(_lp.MiniPodMap[k].Tag().Id()) == at {
 			_lp.MiniPodMap[k].IsOpen = true
 		}
