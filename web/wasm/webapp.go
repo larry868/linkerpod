@@ -82,10 +82,8 @@ func main() {
 		dom.Id("webapp").InsertSnippet(dom.INSERT_FIRST_CHILD,
 			ick.Elem("div", `class="level is-mobile"`,
 				ick.Elem("div", `class="level-left"`,
-					// ick.Elem("div", `class="level-item"`, _btnShrink),
 					ick.Elem("div", `class="level-item"`, _btnLayout))))
 
-		// _btnShrink.SetDisabled(false)
 		_btnLayout.SetDisabled(false)
 		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
 	}
