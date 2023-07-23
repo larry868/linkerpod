@@ -20,17 +20,10 @@ import (
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
-	"github.com/lolorenzo777/verbose"
 	"gopkg.in/yaml.v3"
 )
 
 var (
-	_btnShrink = ickui.Button("Shrink", "").
-			SetId("btnshrink").
-			SetColor(ick.COLOR_PRIMARY).
-			SetOutlined(true).
-			SetDisabled(true).
-			SetSize(ick.SIZE_SMALL)
 	_btnLayout = ickui.Button("Tiles", "").
 			SetId("btnlayout").
 			SetColor(ick.COLOR_PRIMARY).
@@ -45,18 +38,21 @@ var (
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running...")
-	verbose.IsOn = true
-	verbose.IsDebugging = true
+	fmt.Println("Go/WASM loaded and running....")
+	// verbose.IsOn = true
+	// verbose.IsDebugging = true
 
 	var err error
 
 	start := time.Now()
 
-	// extract query if any
-	// TODO: encode the query
+	// title
 	yaml := "linkerpod.yaml"
 	u := dom.Doc().Body().BaseURI()
+	dom.Id("title").InsertText(dom.INSERT_BODY, path.Dir(u.String()))
+
+	// extract query if any
+	// TODO: encode the query
 	q := u.Query()
 	if len(q) > 0 {
 		pod := q["pod"]
@@ -72,6 +68,7 @@ func main() {
 			}
 		}
 	}
+	dom.Id("subtitle").InsertText(dom.INSERT_BODY, yaml[:len(yaml)-5])
 
 	if err == nil {
 		_lp, err = DownloadData(yaml)
@@ -79,17 +76,16 @@ func main() {
 
 	if err == nil {
 		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_lp)
-		_lp.Mount()
+		_lp.Mount(u.Fragment)
 
-		_btnShrink.OnClick = OnToggleShrink
 		_btnLayout.OnClick = OnToggleLayout
 		dom.Id("webapp").InsertSnippet(dom.INSERT_FIRST_CHILD,
-			ick.Elem("div", `class="level"`,
+			ick.Elem("div", `class="level is-mobile"`,
 				ick.Elem("div", `class="level-left"`,
-					ick.Elem("div", `class="level-item"`, _btnShrink),
+					// ick.Elem("div", `class="level-item"`, _btnShrink),
 					ick.Elem("div", `class="level-item"`, _btnLayout))))
 
-		_btnShrink.SetDisabled(false)
+		// _btnShrink.SetDisabled(false)
 		_btnLayout.SetDisabled(false)
 		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
 	}
@@ -102,17 +98,6 @@ func main() {
 	// let's go
 	fmt.Println("Go/WASM ready and listening browser events")
 	<-c
-}
-
-func OnToggleShrink() {
-	if _lp.IsShrunk {
-		_btnShrink.SetTitle("Shrink")
-		_lp.SetShrunk(false)
-	} else {
-		_btnShrink.SetTitle("Expand")
-		_lp.SetShrunk(true)
-	}
-	_btnShrink.DOM.Blur()
 }
 
 func OnToggleLayout() {
@@ -130,6 +115,7 @@ func OnToggleLayout() {
 
 type YamlMiniPod struct {
 	Icon  string     `yaml:"icon"`
+	ABC   string     `yaml:"abc"`
 	Links []YamlLink `yaml:"links"`
 }
 
@@ -159,15 +145,20 @@ func DownloadData(yaml string) (LinkerPod, error) {
 	}
 
 	// parse lp.LinksMap
-	for k, v := range ys.Links {
-		if v.Link == "" {
-			console.Warnf("DownloadData.links: [%s] missing link id", k)
+	for yk, yl := range ys.Links {
+		if yl.Link == "" {
+			console.Warnf("DownloadData.links: [%s] missing link id", yk)
 		} else {
-			c := Card(k).ParseHRef(v.Link)
-			if abc := strings.ToLower(strings.Trim(v.ABC, " ")); abc != "" {
-				c.ABC = abc
+			ykl := strings.ToLower(yk)
+			if _, found := lp.LinksMap[ykl]; found {
+				console.Warnf("DownloadData.links: duplicate link id %q", ykl)
+			} else {
+				c := Card(yk).ParseHRef(yl.Link)
+				if abc := strings.ToLower(strings.Trim(yl.ABC, " ")); abc != "" {
+					c.ABC = abc
+				}
+				lp.LinksMap[ykl] = c
 			}
-			lp.LinksMap[k] = c
 		}
 	}
 
@@ -176,11 +167,23 @@ func DownloadData(yaml string) (LinkerPod, error) {
 	}
 
 	// parse lp.MiniPodMap
-	for k, mp := range ys.MiniPods {
-		lp.MiniPodMap[k] = MiniPod(k, mp.Icon)
-		for _, mpl := range mp.Links {
-			if c, found := lp.LinksMap[mpl.Id]; found {
-				lp.MiniPodMap[k].InsertCard(*c, strings.ToLower(strings.Trim(mpl.ABC, " ")))
+	for yk, ymp := range ys.MiniPods {
+
+		ykl := strings.ToLower(yk)
+		if _, found := lp.MiniPodMap[ykl]; found {
+			console.Warnf("DownloadData.minipods: duplicate minipod id %q", ykl)
+		} else {
+			mp := MiniPod(yk, ymp.Icon)
+			if abc := strings.ToLower(strings.Trim(ymp.ABC, " ")); abc != "" {
+				mp.ABC = abc
+			}
+			lp.MiniPodMap[ykl] = mp
+		}
+
+		for _, mpl := range ymp.Links {
+			mplid := strings.ToLower(mpl.Id)
+			if c, found := lp.LinksMap[mplid]; found {
+				lp.MiniPodMap[ykl].InsertCard(*c, strings.ToLower(strings.Trim(mpl.ABC, " ")))
 				c.InMiniPods += 1
 			} else {
 				console.Warnf("DownloadData.minipods: link %q not referenced", mpl)

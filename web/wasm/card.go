@@ -15,7 +15,7 @@ type CardSnippet struct {
 
 	Name       string   // link card name, must be unique
 	HRef       *url.URL // URL link card
-	IsShrunk   bool
+	IsExpanded bool
 	InMiniPods int
 	ABC        string
 }
@@ -48,9 +48,9 @@ func (card *CardSnippet) SetHRef(href *url.URL) *CardSnippet {
 	return card
 }
 
-func (card *CardSnippet) SetShrunk(shrunk bool) *CardSnippet {
-	card.IsShrunk = shrunk
-	card.DOM.SetClassIf(!shrunk, "p-2 mb-2")
+func (card *CardSnippet) Expand(f bool) *CardSnippet {
+	card.IsExpanded = f
+	card.DOM.SetClassIf(!f, "py-1 px-3", "py-3 px-5")
 	return card
 }
 
@@ -59,8 +59,8 @@ func (card *CardSnippet) SetShrunk(shrunk bool) *CardSnippet {
 func (card *CardSnippet) BuildTag() ickcore.Tag {
 	card.Tag().
 		SetTagName("div").
-		AddClass("card").
-		SetClassIf(!card.IsShrunk, "p-2 mb-2").
+		AddClass("card mb-1").
+		SetClassIf(!card.IsExpanded, "py-1 px-3", "py-3 px-5").
 		SetAttributeIf(card.ABC != "", "data-abc", card.ABC)
 	return *card.Tag()
 }

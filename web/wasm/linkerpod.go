@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
@@ -12,8 +14,7 @@ type LinkerPod struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	IsTiles  bool
-	IsShrunk bool
+	IsTiles bool
 
 	LinksMap   map[string]*CardSnippet
 	MiniPodMap map[string]*MiniPodSnippet
@@ -29,17 +30,6 @@ func NewLinkerPod() *LinkerPod {
 	return n
 }
 
-func (mp *LinkerPod) SetShrunk(f bool) {
-	mp.IsShrunk = f
-	for _, l := range mp.LinksMap {
-		l.SetShrunk(f)
-	}
-
-	for _, p := range mp.MiniPodMap {
-		p.SetShrunk(f)
-	}
-}
-
 func (mp *LinkerPod) SetTiles(f bool) {
 	mp.IsTiles = f
 
@@ -49,6 +39,7 @@ func (mp *LinkerPod) SetTiles(f bool) {
 
 	for _, p := range mp.MiniPodMap {
 		p.DOM.SetClassIf(mp.IsTiles, "mr-4")
+		p.OnOpenClose(false)
 	}
 
 	dom.Id("minipods").SetClassIf(mp.IsTiles, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
@@ -68,16 +59,29 @@ func (mp *LinkerPod) RenderContent(out io.Writer) error {
 	return nil
 }
 
-func (mp *LinkerPod) Mount() error {
+/******************************************************************************/
+
+// Mount inserts minipods and single cards. If at correspond to the id of a minipod then opens it
+func (mp *LinkerPod) Mount(at string) error {
+	at = strings.ToLower(at)
 
 	// Insert Sorted MiniPodMap
 	kmp := make([]string, 0, len(_lp.MiniPodMap))
 	for k := range _lp.MiniPodMap {
 		kmp = append(kmp, k)
 	}
-	sort.Strings(kmp)
+	sort.Slice(kmp, func(i, j int) bool {
+		if _lp.MiniPodMap[kmp[i]].ABC == _lp.MiniPodMap[kmp[j]].ABC {
+			return _lp.MiniPodMap[kmp[i]].Name < _lp.MiniPodMap[kmp[j]].Name
+		}
+		return _lp.MiniPodMap[kmp[i]].ABC < _lp.MiniPodMap[kmp[j]].ABC
+	})
 	emp := dom.Id("minipods")
 	for _, k := range kmp {
+		fmt.Printf("%+v --- %+v\n", _lp.MiniPodMap[k].Tag(), at)
+		if strings.ToLower(_lp.MiniPodMap[k].Tag().Id()) == at {
+			_lp.MiniPodMap[k].IsOpen = true
+		}
 		emp.InsertSnippet(dom.INSERT_LAST_CHILD, _lp.MiniPodMap[k])
 	}
 
@@ -91,6 +95,7 @@ func (mp *LinkerPod) Mount() error {
 	sort.Strings(kl)
 	eno := dom.Id("nominipod")
 	for _, k := range kl {
+		_lp.LinksMap[k].Expand(true)
 		eno.InsertSnippet(dom.INSERT_LAST_CHILD, _lp.LinksMap[k])
 	}
 

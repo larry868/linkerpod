@@ -18,9 +18,10 @@ type MiniPodSnippet struct {
 	Icon ick.ICKIcon
 	Body []*CardSnippet // rendered as <div class="card-content">
 
-	IsShrunk bool
-	IsOpen   bool
-	HasMore  int
+	IsExpanded bool
+	IsOpen     bool
+	HasMore    int
+	ABC        string
 }
 
 // Ensuring MiniPodSnippet implements the right interface
@@ -35,6 +36,7 @@ func MiniPod(name string, iconkey string) *MiniPodSnippet {
 	} else {
 		n.Icon.Key = "bi bi-dot"
 	}
+	n.ABC = "b"
 	// TODO: build a safe id
 	n.Tag().SetId("minipod-" + n.Name)
 	return n
@@ -48,7 +50,7 @@ func (mp *MiniPodSnippet) InsertCard(c CardSnippet, abc string) {
 		c.ABC = abc
 	}
 	c.Tag().SetId(mp.Tag().SubId(c.Name))
-	c.Tag().SetClassIf(c.ABC >= "c", "more", "is-hidden")
+	c.Tag().SetClassIf(c.ABC >= "c", "more is-hidden")
 	if c.ABC >= "c" {
 		mp.HasMore++
 	}
@@ -63,20 +65,14 @@ func (mp *MiniPodSnippet) InsertCard(c CardSnippet, abc string) {
 	mp.Body = append(mp.Body, &c)
 }
 
-func (mp *MiniPodSnippet) SetShrunk(shrunk bool) *MiniPodSnippet {
-	mp.IsShrunk = shrunk
-	//mp.DOM.SetClassIf(!shrunk, "mb-2")
-	return mp
-}
-
 /******************************************************************************/
 
 // BuildTag
 func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 	mp.Tag().
 		SetTagName("div").
-		AddClass("card").
-		SetClassIf(!mp.IsShrunk, "mb-2")
+		AddClass("card mb-2").
+		SetAttributeIf(mp.ABC != "", "data-abc", mp.ABC)
 
 	return *mp.Tag()
 }
@@ -89,7 +85,11 @@ func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 	ickcore.RenderString(out, `<span class="ml-2">`+mp.Name+`</span>`)
 	ickcore.RenderString(out, `</p>`, `</header>`)
 
-	ickcore.RenderString(out, `<div class="card-content pt-2 px-2 pb-1 is-hidden">`)
+	ishidden := "is-hidden"
+	if mp.IsOpen {
+		ishidden = ""
+	}
+	ickcore.RenderString(out, `<div class="card-content pt-2 px-2 pb-1 `+ishidden+`">`)
 	var lastabc byte
 	for _, cinbody := range mp.Body {
 		if lastabc != 0 && len(cinbody.ABC) > 0 && cinbody.ABC[0] != lastabc {
@@ -128,24 +128,29 @@ func (mp *MiniPodSnippet) AddListeners() {
 	chs := mp.DOM.ChildrenByClassName("card-header")
 	chs[0].AddClass("is-clickable").Blur()
 
-	ccs := mp.DOM.ChildrenByClassName("card-content")
-	cfs := mp.DOM.ChildrenByClassName("card-footer")
-
 	chs[0].AddMouseEvent(event.MOUSE_ONCLICK, func(me *event.MouseEvent, e *dom.Element) {
-		if mp.IsOpen {
-			mp.IsOpen = false
-			cmores := mp.DOM.ChildrenByClassName("more")
-			for _, cmore := range cmores {
-				cmore.AddClass("is-hidden")
-			}
-		} else {
-			mp.IsOpen = true
-		}
-		ccs[0].SetClassIf(!mp.IsOpen, "is-hidden")
-		if len(cfs) > 0 {
-			cfs[0].SetClassIf(!mp.IsOpen, "is-hidden")
-		}
+		mp.OnOpenClose(!mp.IsOpen)
 	})
+}
+
+func (mp *MiniPodSnippet) OnOpenClose(open bool) {
+	if !open {
+		mp.IsOpen = false
+		cmores := mp.DOM.ChildrenByClassName("more")
+		for _, cmore := range cmores {
+			cmore.AddClass("is-hidden")
+		}
+	} else {
+		mp.IsOpen = true
+	}
+
+	ccs := mp.DOM.ChildrenByClassName("card-content")
+	ccs[0].SetClassIf(!mp.IsOpen, "is-hidden")
+
+	cfs := mp.DOM.ChildrenByClassName("card-footer")
+	if len(cfs) > 0 {
+		cfs[0].SetClassIf(!mp.IsOpen, "is-hidden")
+	}
 }
 
 /******************************************************************************/
