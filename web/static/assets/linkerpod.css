@@ -10318,7 +10318,7 @@ a.navbar-item.is-active {
 .hsplitter {
   display: block;
   margin-bottom: 0.5rem;
-  border-top: 1px solid #058ED9;
+  border-top: 1px solid hsl(0, 0%, 71%);
   width: 100%;
   height: 1px;
 }/*# sourceMappingURL=linkerpod.css.map */
