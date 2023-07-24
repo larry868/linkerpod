@@ -1,0 +1,43 @@
+@charset "utf-8";
+
+$cardlink-spacing: 0rem !default;
+$cardlink-content-spacing: 0.75rem !default;
+
+.cardlink {
+    align-items: flex-start;
+    display: flex;
+    text-align: inherit;
+
+    .content:not(:last-child) {
+        margin-bottom: $cardlink-content-spacing;
+    }
+}
+
+.cardlink-left,
+.cardlink-right {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.cardlink-left {
+    margin: $cardlink-spacing;
+    margin-right: 0.5rem;
+}
+
+.cardlink-right {
+    margin: $cardlink-spacing;
+}
+
+.cardlink-content {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    text-align: inherit;
+}
+
+.mobile {
+    .cardlink-content {
+        overflow-x: auto;
+    }
+}

@@ -80,7 +80,7 @@ func (mp *MiniPodSnippet) NeedRendering() bool {
 func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 	mp.Tag().
 		SetTagName("div").
-		AddClass("card mb-2").
+		AddClass("card mb-1").
 		SetAttributeIf(mp.ABC != "", "data-abc", mp.ABC)
 	return *mp.Tag()
 }
@@ -88,7 +88,7 @@ func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 // RenderContent
 func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 
-	ickcore.RenderString(out, `<header class="card-header">`, `<p class="card-header-title">`)
+	ickcore.RenderString(out, `<header class="card-header">`, `<p class="card-header-title pl-3">`)
 	ickcore.RenderChild(out, mp, &mp.Icon)
 	ickcore.RenderString(out, `<span class="ml-2">`+mp.Name+`</span>`)
 	ickcore.RenderString(out, `</p>`, `</header>`)
@@ -116,7 +116,7 @@ func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 	ickcore.RenderString(out, `</div>`)
 
 	if mp.HasMore > 0 {
-		btnmore := ickui.Button("more").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
+		btnmore := ickui.Button("More...").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
 		btnmore.OnClick = mp.OnShowMeMore
 		ickcore.RenderString(out, `<div class="card-footer is-hidden">`)
 		ickcore.RenderString(out, `<span class="card-footer-item is-justify-content-flex-start">`)

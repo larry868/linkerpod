@@ -14,4 +14,7 @@
             "savePathReplacementPairs": null
         }
     ],
+    "liveSassCompile.settings.includeItems": [
+        "/linkerpod.scss"
+    ],
 }

@@ -9,11 +9,16 @@ import (
 	"github.com/icecake-framework/icecake/pkg/ickcore"
 )
 
+var (
+	_defaultImage = ick.Icon("bi bi-x-square-fill").SetColor(ick.TXTCOLOR_GREY_LIGHT)
+)
+
 type CardSnippet struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	Name       string   // link card name, must be unique
+	Name       string // link card name, must be unique
+	Image      ick.ICKImage
 	HRef       *url.URL // URL link card
 	IsExpanded bool
 	InMiniPods int
@@ -59,15 +64,26 @@ func (card *CardSnippet) Expand(f bool) *CardSnippet {
 func (card *CardSnippet) BuildTag() ickcore.Tag {
 	card.Tag().
 		SetTagName("div").
-		AddClass("card mb-1").
-		SetClassIf(!card.IsExpanded, "py-1 px-3", "py-3 px-5").
+		AddClass("card mb-1 px-3").
+		SetClassIf(!card.IsExpanded, "py-1", "py-3").
 		SetAttributeIf(card.ABC != "", "data-abc", card.ABC)
 	return *card.Tag()
 }
 
 func (card *CardSnippet) RenderContent(out io.Writer) error {
-	l := ick.Link(ickcore.ToHTML(card.Name)).SetHRef(card.HRef)
-	l.Tag().NoName = true
-	ickcore.RenderChild(out, card, l)
+
+	var img ickcore.ContentComposer
+	if !card.Image.NeedRendering() {
+		img = _defaultImage
+	} else {
+		img = &card.Image
+	}
+
+	c := ick.Elem("div", `class="cardlink"`,
+		ick.Elem("div", `class="cardlink-left"`, img),
+		ick.Elem("div", `class="cardlink-content"`,
+			ick.Link(ickcore.ToHTML(card.Name)).SetHRef(card.HRef)))
+
+	ickcore.RenderChild(out, card, c)
 	return nil
 }

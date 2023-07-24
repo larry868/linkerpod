@@ -23,12 +23,18 @@ import (
 	"github.com/icecake-framework/icecake/pkg/namingpattern"
 )
 
+const (
+	ICON_TILES string = "bi bi-columns-gap"
+	ICON_LIST  string = "bi bi-view-list"
+)
+
 var (
 	_btnLayout = ickui.Button("Tiles", "").
 			SetId("btnlayout").
 			SetColor(ick.COLOR_PRIMARY).
 			SetOutlined(true).
 			SetDisabled(true).
+			SetIcon(*ick.Icon(ICON_TILES), false).
 			SetSize(ick.SIZE_SMALL)
 
 	_lp LinkerPod
@@ -38,7 +44,7 @@ var (
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running......")
+	fmt.Println("Go/WASM loaded and running.....")
 	verbose.IsOn = true
 	verbose.IsDebugging = true
 
@@ -100,12 +106,15 @@ func main() {
 
 func OnToggleLayout() {
 	if _lp.IsTiles {
-		_btnLayout.SetTitle("Tiles")
+		_btnLayout.Title = "Tiles"
+		_btnLayout.OpeningIcon.Key = ICON_TILES
 		_lp.SetTiles(false)
 	} else {
-		_btnLayout.SetTitle("List")
+		_btnLayout.Title = "List"
+		_btnLayout.OpeningIcon.Key = ICON_LIST
 		_lp.SetTiles(true)
 	}
+	_btnLayout.RefreshContent(_btnLayout)
 	_btnLayout.DOM.Blur()
 }
 
