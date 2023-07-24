@@ -23,11 +23,11 @@ type CardSnippet struct {
 // Ensuring LinkCardSnippet implements the right interface
 var _ dom.UIComposer = (*CardSnippet)(nil)
 
-func Card(name string) *CardSnippet {
+func Card(key string, name string) *CardSnippet {
 	n := new(CardSnippet)
+	n.Tag().SetId(key)
 	n.Name = name
 	n.ABC = "b"
-	n.Tag().SetId(n.Name)
 	return n
 }
 

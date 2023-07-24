@@ -14,7 +14,7 @@ type MiniPodSnippet struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	Name string // mini pod name, must be unique
+	Name string // mini pod name
 	Icon ick.ICKIcon
 	Body []*CardSnippet // rendered as <div class="card-content">
 
@@ -27,18 +27,17 @@ type MiniPodSnippet struct {
 // Ensuring MiniPodSnippet implements the right interface
 var _ dom.UIComposer = (*MiniPodSnippet)(nil)
 
-func MiniPod(name string, iconkey string) *MiniPodSnippet {
+func MiniPod(key string, name string, iconkey string, abc string) *MiniPodSnippet {
 	n := new(MiniPodSnippet)
 	n.Body = make([]*CardSnippet, 0)
+	n.Tag().SetId(key)
 	n.Name = name
 	if iconkey != "" {
 		n.Icon.Key = iconkey
 	} else {
 		n.Icon.Key = "bi bi-dot"
 	}
-	n.ABC = "b"
-	// TODO: build a safe id
-	n.Tag().SetId("minipod-" + n.Name)
+	n.ABC = abc
 	return n
 }
 
@@ -49,7 +48,6 @@ func (mp *MiniPodSnippet) InsertCard(c CardSnippet, abc string) {
 	if abc != "" {
 		c.ABC = abc
 	}
-	c.Tag().SetId(mp.Tag().SubId(c.Name))
 	c.Tag().SetClassIf(c.ABC >= "c", "more is-hidden")
 	if c.ABC >= "c" {
 		mp.HasMore++
@@ -65,7 +63,18 @@ func (mp *MiniPodSnippet) InsertCard(c CardSnippet, abc string) {
 	mp.Body = append(mp.Body, &c)
 }
 
+func (mp MiniPodSnippet) ABCGroup() string {
+	if len(mp.ABC) > 0 {
+		return string(mp.ABC[0])
+	}
+	return ""
+}
+
 /******************************************************************************/
+
+func (mp *MiniPodSnippet) NeedRendering() bool {
+	return len(mp.Body) > 0
+}
 
 // BuildTag
 func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
@@ -73,7 +82,6 @@ func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 		SetTagName("div").
 		AddClass("card mb-2").
 		SetAttributeIf(mp.ABC != "", "data-abc", mp.ABC)
-
 	return *mp.Tag()
 }
 
@@ -133,6 +141,8 @@ func (mp *MiniPodSnippet) AddListeners() {
 	})
 }
 
+/******************************************************************************/
+
 func (mp *MiniPodSnippet) OnOpenClose(open bool) {
 	if !open {
 		mp.IsOpen = false
@@ -153,7 +163,6 @@ func (mp *MiniPodSnippet) OnOpenClose(open bool) {
 	}
 }
 
-/******************************************************************************/
 func (mp *MiniPodSnippet) OnShowMeMore() {
 	cmores := mp.DOM.ChildrenByClassName("more")
 	for _, cmore := range cmores {

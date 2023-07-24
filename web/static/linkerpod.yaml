@@ -4,27 +4,44 @@
 links:
   Proton Mail:
     link: https://mail.proton.me/u/0/inbox
-    abc: a
+    minipods:
+      - {minipod: Office, abc: a}
   Simple Login:
     link: https://simplelogin.io/
+    minipods:
+      - {minipod: Office}
   Digital Ocean:
     link: https://cloud.digitalocean.com    
+    minipods:
+      - {minipod: Devops}
   Gandi: 
     link: https://admin.gandi.net/domain/55216f04-ab46-11eb-ab22-00163e9db362/
+    minipods:
+      - {minipod: Devops}
   OVH:
     link: https://www.ovhcloud.com/
+    minipods:
+      - {minipod: Devops}
   Linkedin:
     link: https://www.linkedin.com/feed/
-    abc: a
+    minipods:
+      - {minipod: Social}
   Twitter: 
     link: https://twitter.com/
-    abc: c
+    minipods:
+      - {minipod: Social, abc: c}
   Pinterest:
     link: https://www.pinterest.com/
+    minipods:
+      - {minipod: Social}
   Github:
     link: https://github.com/
+    minipods:
+      - {minipod: Devops}
   Medium:
     link: https://medium.com
+    minipods:
+      - {minipod: Social}
   Bitcoin Whitepaper:
     link: https://bitcoin.org/bitcoin.pdf
 
@@ -32,26 +49,12 @@ links:
 minipods:
   Social: 
     icon: "bi bi-chat"
-    links: 
-      - {id: "Twitter"}
-      - {id: "Pinterest"}
-      - {id: "Linkedin", abc: b}
+    abc: b
   Office:
     icon: "bi bi-file-text"
-    links: 
-      - {id: "Proton Mail"}
-      - {id: "Simple Login"}
-  IT OPS:
-    icon: "bi bi-hdd-network"
-    links:
-      - {id: Digital Ocean}
-      - {id: Gandi}
-      - {id: OVH}
-      - {id: Github}
-
-  White Papers:
-    links:
-      - {id: Bitcoin Whitepaper}
+    abc: a
+  Devops:
+    abc: b
 
 # that's it
 ...

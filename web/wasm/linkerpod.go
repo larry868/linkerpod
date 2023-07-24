@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/icecake-framework/icecake/pkg/dom"
+	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
 )
 
@@ -54,7 +55,7 @@ func (mp *LinkerPod) BuildTag() ickcore.Tag {
 
 func (mp *LinkerPod) RenderContent(out io.Writer) error {
 	ickcore.RenderString(out, `<div id="minipods"></div>`)
-	ickcore.RenderString(out, `<div id="nominipod" class="pt-2"></div>`)
+	ickcore.RenderString(out, `<div id="nominipod"></div>`)
 	return nil
 }
 
@@ -64,26 +65,48 @@ func (mp *LinkerPod) RenderContent(out io.Writer) error {
 func (mp *LinkerPod) Mount(at string) error {
 	at = strings.ToLower(at)
 
-	// Insert Sorted MiniPodMap
-	kmp := make([]string, 0, len(_lp.MiniPodMap))
-	for k := range _lp.MiniPodMap {
-		kmp = append(kmp, k)
-	}
-	sort.Slice(kmp, func(i, j int) bool {
-		if _lp.MiniPodMap[kmp[i]].ABC == _lp.MiniPodMap[kmp[j]].ABC {
-			return _lp.MiniPodMap[kmp[i]].Name < _lp.MiniPodMap[kmp[j]].Name
+	// get sorted list of ABCGroups
+	abcgs := make([]string, 0)
+nextmp:
+	for _, mp := range _lp.MiniPodMap {
+		g := mp.ABCGroup()
+		for _, k := range abcgs {
+			if g == k {
+				continue nextmp
+			}
 		}
-		return _lp.MiniPodMap[kmp[i]].ABC < _lp.MiniPodMap[kmp[j]].ABC
-	})
-	emp := dom.Id("minipods")
-	for _, k := range kmp {
-		if strings.ToLower(_lp.MiniPodMap[k].Tag().Id()) == at {
-			_lp.MiniPodMap[k].IsOpen = true
-		}
-		emp.InsertSnippet(dom.INSERT_LAST_CHILD, _lp.MiniPodMap[k])
+		abcgs = append(abcgs, g)
 	}
+	sort.Strings(abcgs)
 
-	// Insert Sorted LinksMap
+	// Insert Sorted MiniPodMap by abc
+	for _, abcg := range abcgs {
+
+		mpking := make([]string, 0)
+		for mpk, mp := range _lp.MiniPodMap {
+			if mp.ABCGroup() == abcg {
+				mpking = append(mpking, mpk)
+			}
+		}
+		sort.Slice(mpking, func(i, j int) bool {
+			if _lp.MiniPodMap[mpking[i]].ABC == _lp.MiniPodMap[mpking[j]].ABC {
+				return _lp.MiniPodMap[mpking[i]].Name < _lp.MiniPodMap[mpking[j]].Name
+			}
+			return _lp.MiniPodMap[mpking[i]].ABC < _lp.MiniPodMap[mpking[j]].ABC
+		})
+
+		mpg := ick.Elem("div", `class="pb-3"`)
+		mpg.Tag().SetId("minipods." + abcg)
+		for _, k := range mpking {
+			if strings.ToLower(_lp.MiniPodMap[k].Tag().Id()) == at {
+				_lp.MiniPodMap[k].IsOpen = true
+			}
+			mpg.Append(_lp.MiniPodMap[k])
+		}
+		dom.Id("minipods").InsertSnippet(dom.INSERT_LAST_CHILD, mpg)
+
+	}
+	// Insert Sorted single LinksMap
 	kl := make([]string, 0, len(_lp.LinksMap))
 	for k, l := range _lp.LinksMap {
 		if l.InMiniPods == 0 {

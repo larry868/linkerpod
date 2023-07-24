@@ -6,21 +6,21 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/lolorenzo777/linkerpod/pkg/yamlpod"
+	"github.com/lolorenzo777/verbose"
 
 	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
-	"gopkg.in/yaml.v3"
+	"github.com/icecake-framework/icecake/pkg/namingpattern"
 )
 
 var (
@@ -38,9 +38,9 @@ var (
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running....")
-	// verbose.IsOn = true
-	// verbose.IsDebugging = true
+	fmt.Println("Go/WASM loaded and running......")
+	verbose.IsOn = true
+	verbose.IsDebugging = true
 
 	var err error
 
@@ -111,52 +111,62 @@ func OnToggleLayout() {
 
 /******************************************************************************/
 
-type YamlMiniPod struct {
-	Icon  string     `yaml:"icon"`
-	ABC   string     `yaml:"abc"`
-	Links []YamlLink `yaml:"links"`
-}
-
-type YamlLink struct {
-	Id  string `yaml:"id"`
-	ABC string `yaml:"abc"`
-}
-
-type YamlLinkEntry struct {
-	Link string `yaml:"link"`
-	ABC  string `yaml:"abc"`
-}
-
-type YamlStruct struct {
-	Links    map[string]YamlLinkEntry `yaml:"links"`
-	MiniPods map[string]YamlMiniPod   `yaml:"minipods"`
-}
-
 func DownloadData(yaml string) (LinkerPod, error) {
 
 	lp := NewLinkerPod()
 
 	// download yaml file
-	ys, err := DownloadYaml(yaml)
+	ys, err := yamlpod.DownloadYaml(yaml)
 	if err != nil {
 		return *lp, fmt.Errorf("DownloadData: %w", err)
 	}
 
+	// parse lp.MiniPodMap
+	for ympk, ymp := range ys.MiniPods {
+		if ymp.Name == "" {
+			ymp.Name = ympk
+		}
+		ympk = "mp-" + namingpattern.MakeValidName(strings.ToLower(ympk))
+		if _, found := lp.MiniPodMap[ympk]; found {
+			console.Warnf("DownloadData.minipods: duplicate minipod id %q", ympk)
+			continue
+		}
+		mp := MiniPod(ympk, ymp.Name, ymp.Icon, strings.ToLower(ymp.ABC))
+		lp.MiniPodMap[ympk] = mp
+	}
+
 	// parse lp.LinksMap
-	for yk, yl := range ys.Links {
-		if yl.Link == "" {
-			console.Warnf("DownloadData.links: [%s] missing link id", yk)
-		} else {
-			ykl := strings.ToLower(yk)
-			if _, found := lp.LinksMap[ykl]; found {
-				console.Warnf("DownloadData.links: duplicate link id %q", ykl)
-			} else {
-				c := Card(yk).ParseHRef(yl.Link)
-				if abc := strings.ToLower(strings.Trim(yl.ABC, " ")); abc != "" {
-					c.ABC = abc
-				}
-				lp.LinksMap[ykl] = c
+	for ylnkk, ylnk := range ys.Links {
+		if ylnk.Link == "" {
+			console.Warnf("DownloadData.links: missing link %q", ylnkk)
+			continue
+		}
+
+		if ylnk.Name == "" {
+			ylnk.Name = ylnkk
+		}
+		lnkkey := "lnk-" + namingpattern.MakeValidName(strings.ToLower(ylnkk))
+		if _, found := lp.LinksMap[lnkkey]; found {
+			console.Warnf("DownloadData.links: duplicate %q", lnkkey)
+			continue
+		}
+
+		lnk := Card(lnkkey, ylnk.Name).ParseHRef(ylnk.Link)
+		lp.LinksMap[lnkkey] = lnk
+
+		for _, mpinlnk := range ylnk.Minipods {
+			mpkey := "mp-" + namingpattern.MakeValidName(strings.ToLower(mpinlnk.MinipodKey))
+			mp, found := lp.MiniPodMap[mpkey]
+			if !found {
+				console.Warnf("DownloadData.links: minipod %q not found", mpinlnk.MinipodKey)
+				continue
 			}
+
+			lp.LinksMap[lnkkey].InMiniPods++
+			inlnkkey := mp.Tag().SubId(lnkkey)
+			lnkin := *lnk
+			lnkin.Tag().SetId(inlnkkey)
+			mp.InsertCard(lnkin, mpinlnk.ABC)
 		}
 	}
 
@@ -164,66 +174,5 @@ func DownloadData(yaml string) (LinkerPod, error) {
 		return *lp, fmt.Errorf("empty pod")
 	}
 
-	// parse lp.MiniPodMap
-	for yk, ymp := range ys.MiniPods {
-
-		ykl := strings.ToLower(yk)
-		if _, found := lp.MiniPodMap[ykl]; found {
-			console.Warnf("DownloadData.minipods: duplicate minipod id %q", ykl)
-		} else {
-			mp := MiniPod(yk, ymp.Icon)
-			if abc := strings.ToLower(strings.Trim(ymp.ABC, " ")); abc != "" {
-				mp.ABC = abc
-			}
-			lp.MiniPodMap[ykl] = mp
-		}
-
-		for _, mpl := range ymp.Links {
-			mplid := strings.ToLower(mpl.Id)
-			if c, found := lp.LinksMap[mplid]; found {
-				lp.MiniPodMap[ykl].InsertCard(*c, strings.ToLower(strings.Trim(mpl.ABC, " ")))
-				c.InMiniPods += 1
-			} else {
-				console.Warnf("DownloadData.minipods: link %q not referenced", mpl)
-			}
-		}
-	}
-
 	return *lp, nil
-}
-
-func DownloadYaml(url string) (*YamlStruct, error) {
-	client := http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Permissions-Policy", "interest-cohort=()")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
-	}
-
-	// Write the body to the writer
-	buf := &bytes.Buffer{}
-	n, err := io.Copy(buf, resp.Body)
-	if err == nil && n == 0 {
-		err = errors.New("empty yaml file")
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	ys := &YamlStruct{}
-	err = yaml.Unmarshal(buf.Bytes(), ys)
-	if err != nil {
-		return nil, err
-	}
-
-	return ys, nil
 }
