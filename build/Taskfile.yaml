@@ -11,6 +11,7 @@ tasks:
   build2docs:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
+      - rm -rf ./website
       - rm -rf ./docs
       - mkdir -p ./docs
       - cp -R ./web/static/** ./docs
@@ -22,6 +23,7 @@ tasks:
   build2website:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
+      - rm -rf ./docs
       - rm -rf ./website
       - mkdir -p ./website
       - cp -R ./web/static/** ./website
@@ -45,5 +47,6 @@ tasks:
   dev:
     dir: '{{.USER_WORKING_DIR}}'
     cmds: 
+      - mkdir -p ./website
       - task: static
       - task: wasm
