@@ -21,10 +21,10 @@ const (
 
 func main() {
 	var pod string
-	var reseticoncache, loadicons, overwrite bool
+	var resetcache, loadicons, overwrite bool
 
 	flag.StringVar(&pod, "pod", "linkerpod.yaml", "full path of the yaml file selected")
-	flag.BoolVar(&reseticoncache, "reseticoncache", false, "reset favicon cache of the pod")
+	flag.BoolVar(&resetcache, "resetcache", false, "reset favicon cache of the pod")
 	flag.BoolVar(&loadicons, "loadfavicons", false, "load and set pod's favicons in cache")
 	flag.BoolVar(&overwrite, "overwrite", false, "overwrite favicons already in cache")
 	flag.BoolVar(&verbose.IsOn, "verbose", false, "verbose output")
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	cachepath := path.Join(filepath.Dir(yamlpath), PATH_CACHEICONS)
-	if reseticoncache {
+	if resetcache {
 		os.RemoveAll(cachepath)
 		fmt.Printf("favicon cache %q has been reset\n", cachepath)
 	}
@@ -76,7 +76,7 @@ func main() {
 	}
 
 	// update cache
-	if loadicons || reseticoncache {
+	if loadicons || resetcache {
 		verbose.Printf(verbose.INFO, "processing pod %q: %v links\n", yamlpath, len(ys.Links))
 		nko := 0
 		nok := 0
@@ -88,7 +88,7 @@ func main() {
 			isblank := ylnk.Icon == ""
 
 			fup := false
-			if reseticoncache {
+			if resetcache {
 				if isincache {
 					ylnk.Icon = ""
 					fup = true
