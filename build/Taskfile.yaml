@@ -27,12 +27,23 @@ tasks:
       - cp -R ./web/static/** ./website
       - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
 
-#> task -t ./build/Taskfile.yaml dev --watch
-  dev:
+  static:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
-      - "web/wasm/*"
       - "./web/static/**/*"
     cmds: 
       - cp -R ./web/static/** ./website
+
+  wasm:
+    dir: '{{.USER_WORKING_DIR}}'
+    sources: 
+      - "web/wasm/*"
+    cmds: 
       - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
+
+#> task -t ./build/Taskfile.yaml dev --watch
+  dev:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds: 
+      - task: static
+      - task: wasm
