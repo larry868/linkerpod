@@ -1,60 +1,67 @@
-# example of linkerpod yaml file
----
-# map of links
+# Linkerpod setup file
+# linkerpod.yaml updated on 2023-07-28 09:14:22
 links:
-  Proton Mail:
-    link: https://mail.proton.me/u/0/inbox
-    minipods:
-      - {minipod: Office, abc: a}
-  Simple Login:
-    link: https://simplelogin.io/
-    minipods:
-      - {minipod: Office}
-  Digital Ocean:
-    link: https://cloud.digitalocean.com    
-    minipods:
-      - {minipod: Devops}
-  Gandi: 
-    link: https://admin.gandi.net/domain/55216f04-ab46-11eb-ab22-00163e9db362/
-    minipods:
-      - {minipod: Devops}
-  OVH:
-    link: https://www.ovhcloud.com/
-    minipods:
-      - {minipod: Devops}
-  Linkedin:
-    link: https://www.linkedin.com/feed/
-    minipods:
-      - {minipod: Social}
-  Twitter: 
-    link: https://twitter.com/
-    minipods:
-      - {minipod: Social, abc: c}
-  Pinterest:
-    link: https://www.pinterest.com/
-    minipods:
-      - {minipod: Social}
-  Github:
-    link: https://github.com/
-    minipods:
-      - {minipod: Devops}
-  Medium:
-    link: https://medium.com
-    minipods:
-      - {minipod: Social}
-  Bitcoin Whitepaper:
-    link: https://bitcoin.org/bitcoin.pdf
-
-# map of minipods
+    Bitcoin Whitepaper:
+        link: https://bitcoin.org/bitcoin.pdf
+        icon: assets/.cacheicons/bitcoin-org+114x114.png
+    Digital Ocean:
+        link: https://cloud.digitalocean.com
+        icon: assets/.cacheicons/cloud-digitalocean-com+180x180.png
+        minipods:
+            - minipod: Devops
+    Gandi:
+        link: https://admin.gandi.net/domain/55216f04-ab46-11eb-ab22-00163e9db362/
+        icon: assets/.cacheicons/admin-gandi-net+256x256.png
+        minipods:
+            - minipod: Devops
+    Github:
+        link: https://github.com/
+        icon: assets/.cacheicons/github-com+svg.svg
+        minipods:
+            - minipod: Devops
+    Linkedin:
+        link: https://www.linkedin.com/feed/
+        icon: assets/.cacheicons/www-linkedin-com+64x64
+        minipods:
+            - minipod: Social
+    Medium:
+        link: https://medium.com
+        icon: assets/.cacheicons/medium-com+svg.svg
+        minipods:
+            - minipod: Social
+    OVH:
+        link: https://www.ovhcloud.com/
+        icon: assets/.cacheicons/www-ovhcloud-com+16x16.ico
+        minipods:
+            - minipod: Devops
+    Pinterest:
+        link: https://www.pinterest.com/
+        icon: assets/.cacheicons/www-pinterest-com+svg.svg
+        minipods:
+            - minipod: Social
+    Proton Mail:
+        link: https://mail.proton.me/u/0/inbox
+        icon: assets/.cacheicons/mail-proton-me+svg.svg
+        minipods:
+            - minipod: Office
+              abc: a
+    Simple Login:
+        link: https://simplelogin.io/
+        icon: assets/.cacheicons/simplelogin-io+64x64.ico
+        minipods:
+            - minipod: Office
+    Twitter:
+        link: https://twitter.com/
+        icon: bi bi-twitter
+        minipods:
+            - minipod: Social
+              abc: c
 minipods:
-  Social: 
-    icon: "bi bi-chat"
-    abc: b
-  Office:
-    icon: "bi bi-file-text"
-    abc: a
-  Devops:
-    abc: b
-
-# that's it
-...
+    Devops:
+        abc: b
+    Office:
+        icon: bi bi-file-text
+        abc: a
+    Social:
+        icon: bi bi-chat
+        abc: b

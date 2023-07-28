@@ -8,6 +8,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ var (
 // outputs will appears in the console of the browser
 func main() {
 	c := make(chan struct{})
-	fmt.Println("Go/WASM loaded and running.....")
+	fmt.Println("Go/WASM loaded and running...")
 	verbose.IsOn = true
 	verbose.IsDebugging = true
 
@@ -161,8 +162,12 @@ func DownloadData(yaml string) (LinkerPod, error) {
 		}
 
 		lnk := Card(lnkkey, ylnk.Name).ParseHRef(ylnk.Link)
+		if ylnk.Icon != "" {
+			lnk.IconSrc, _ = url.Parse(ylnk.Icon)
+		}
 		lp.LinksMap[lnkkey] = lnk
 
+		// insert card in Minipods
 		for _, mpinlnk := range ylnk.Minipods {
 			mpkey := "mp-" + namingpattern.MakeValidName(strings.ToLower(mpinlnk.MinipodKey))
 			mp, found := lp.MiniPodMap[mpkey]

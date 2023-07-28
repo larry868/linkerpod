@@ -25,6 +25,13 @@ $cardlink-content-spacing: 0.75rem !default;
     margin-right: 0.5rem;
 }
 
+.cardlink-img {
+    border: none;
+    margin-top: 2px;
+    width: 20px;
+    height: 20px;
+}
+
 .cardlink-right {
     margin: $cardlink-spacing;
 }
