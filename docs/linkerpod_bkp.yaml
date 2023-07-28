@@ -1,0 +1,17 @@
+# Linkerpod setup file
+# linkerpod.yaml to be customized
+links:
+    My first card:
+        link: https://go.dev/
+        minipods:
+            - minipod: My Minipod
+    My second card:
+        link: https://icecake.dev/
+        minipods:
+            - minipod: My Minipod
+    My first global card:
+        link: https://linkerpod.net
+    My second global card:
+        link: https://github.com/lolorenzo777/linkerpod
+minipods:
+    My Minipod:

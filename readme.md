@@ -1,6 +1,6 @@
 # Linkerpod
 
-Linkerpod allows to reference a set of URL links (aka. social media profiles), personnal info like web3 public keys, and monitoring informations to a single page and sharable link.
+Linkerpod allows referencing a set of URL links (aka. social media profiles), personnal info like licence number or web3 public keys, and monitoring informations to a single page and sharable link.
 
 Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
 
@@ -25,16 +25,37 @@ Sources of inspiration:
 
 ## Usage
 
-### GitHub Pages Install 
+### Install on GitHub Pages
 
 Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 1. fork linkerpod 
 1. customize the `/docs/linkerpod.yaml` file with your own links
+1. if you want to display website favicons rather than icons you've selected:
+    - download favicons and set them in a cache with the following command:
+    1. install linkerpod with `go install github.com/lolorenzo777/linkerpod`
+    1. go to docs in your forked repo: `cd {your_lnkerpod_repo}/docs`
+    1. run `linkerpod -loadfavicons`
 1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`
+
+### Install on any server able to serve static html pages
+1. fork linkerpod 
+1. move all the `/docs/` dir to you own `{your_website}` path
+1. customize the `/{your_website}/linkerpod.yaml` file with your own links
+1. if you want to display website favicons rather than icons you've selected:
+    - download favicons and set them in a cache with the following command:
+    1. install linkerpod with `go install github.com/lolorenzo777/linkerpod`
+    1. go to your website: `cd {your_website}`
+    1. run `linkerpod -loadfavicons`
+1. publish `{your_website}` to your production environment
+
 
 
 ## Roadmap
+
+- [ ] handle additional information on cards, not only link
+- [ ] encrypt private information
+- [ ] make it a pwa
 
 In a futur version linkerpod could implement some Web3 technologies such as :
 - decentralized storage
@@ -64,28 +85,36 @@ linkerpod
 ├── build                           # build scripts
 │   └── Taskfile.yaml               # building task configuration, ic. autobuild the front
 │
+├── cmd
+│   └── linkerpod                 
+│       └── linkerpod.go            # source for the linkerpod CLI
+│
+├── examples                        # examples of linkerpod setup files
+│
+├── pkg                             # common sources for the command line and the wasm code
+│
 ├── web                             # source codes and assets required by the front
-│   ├── bulma-0.9.4                 # bulma saas files
+│   ├── bulma-0.9.4                 # bulma saas files*
 │   ├── saas
-│   │   ├── ick.scss                # required by icecake
-│   │   └── linkerpod.scss          # customized saas
+│   │       └── [*.*]               # any saas files
 │   │
 │   ├── static
 │   │   ├── assets
 │   │   │   ├── wasm_exec.js        # this file is mandatory and is provided by the go compiler
 │   │   │   ├── wasm_loader.js      # this file is required to load the wasm code
 │   │   │   └── [*.*]               # any img, js and other assets
-│   │   └── index.html              # The single and unique linkerpod html file
+│   │   ├── linkerpod.html          # The single and unique linkerpod html file
+│   │   └── linkerpod.yaml          # The default linkerpod setup file
 │   │
 │   └── wasm
 │       └── webapp.go               # the front app entry point, uses components
 │
-├── website                         # the self sufficient dir to serve the app in production, built with prod tasks (see Taskfile.yaml)
+├── website OR docs                 # the self sufficient dir to serve the app in production, built with prod tasks (see Taskfile.yaml)
 │   ├── *.*
 
 ```
 
-The `./web/bulma-0.9.4` directory is not sync with git. It need to be downloaded on the [bulma site](https://bulma.io/documentation/customize/with-sass-cli/)
+_\* The `./web/bulma-0.9.4` directory is not sync with git. It need to be downloaded on the [bulma site](https://bulma.io/documentation/customize/with-sass-cli/)_
 
 
 ### About Web Assembly with go
@@ -104,13 +133,13 @@ In development mode run the `dev` task from the root path with the `--watch flag
 task -t ./build/Taskfile.yaml dev --watch
 ```
 
-Run the `build` task to compile the linkerdpod wasm file and to rebuild the `/docs` directory.
+Run the `build2docs` task to compile the linkerdpod wasm file and to rebuild the `/docs` directory.
 
 ```bash
-task -t ./build/Taskfile.yaml build
+task -t ./build/Taskfile.yaml build2docs
 ```
 
-:warning: The `build` task takes the `linkerpod.yaml` file available in the `/web/static/` directory. Be sure to replace it with your own file.
+:warning: This rebuilds the `/docs` directory and clears all its content. Backup your linkerpod setup file before to run it.
 
 If you've tuned `/web/saas/linkerpod.scss` you need to rebuild `.css` files according to your saas configuration.
 

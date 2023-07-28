@@ -1,0 +1,20 @@
+# Linkerpod setup file
+# linkerpod.yaml to be customized
+links:
+    My first card:
+        link: https://go.dev/
+        icon: assets/.cacheicons/go-dev+svg.svg
+        minipods:
+            - minipod: My Minipod
+    My first global card:
+        link: https://linkerpod.net
+    My second card:
+        link: https://icecake.dev/
+        icon: assets/.cacheicons/icecake-dev+256x256.ico
+        minipods:
+            - minipod: My Minipod
+    My second global card:
+        link: https://github.com/lolorenzo777/linkerpod
+        icon: assets/.cacheicons/github-com+svg.svg
+minipods:
+    My Minipod: {}
