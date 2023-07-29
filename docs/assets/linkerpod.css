@@ -10348,6 +10348,7 @@ a.navbar-item.is-active {
   margin-top: 2px;
   width: 20px;
   height: 20px;
+  text-align: center;
 }
 
 .cardlink-right {

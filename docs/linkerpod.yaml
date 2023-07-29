@@ -1,5 +1,5 @@
 # Linkerpod setup file
-# linkerpod.yaml updated on 2023-07-28 10:39:25
+# linkerpod.yaml to be customized
 links:
     My first card:
         link: https://go.dev/
