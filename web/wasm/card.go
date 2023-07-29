@@ -3,11 +3,13 @@ package main
 import (
 	"io"
 	"net/url"
+	"strings"
 
 	"github.com/gosimple/slug"
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
+	"github.com/lolorenzo777/loadfavicon/v2/pkg/svg"
 )
 
 var (
@@ -21,8 +23,14 @@ type CardSnippet struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	Name       string   // link card name, must be unique
-	IconSrc    *url.URL // URL of the icon
+	Name string // link card name, must be unique
+
+	// IconSrc    *url.URL // URL of the icon
+	iconSrc      *url.URL // URL of the icon
+	iconSVG      string
+	iconCssClass string
+	iconChar     string // single char like a favicon
+
 	HRef       *url.URL // URL link card
 	IsExpanded bool
 	InMiniPods int
@@ -70,6 +78,28 @@ func (card *CardSnippet) Expand(f bool) *CardSnippet {
 	return card
 }
 
+// SetIcon
+func (card *CardSnippet) SetIcon(icon string) *CardSnippet {
+	switch {
+	case svg.IsValidSVG([]byte(icon)):
+		card.iconSVG = icon
+		// TODO: CardSnippet- change internal svg properties such as weight and height
+	case len(icon) > 4 && icon[:4] == "chr=":
+		card.iconChar = strings.Trim(icon[4:], `"`)
+		for index, runeValue := range card.iconChar {
+			if index == 0 {
+				card.iconChar = string(runeValue)
+				break
+			}
+		}
+	case len(icon) > 4 && icon[:4] == "css=":
+		card.iconCssClass = strings.Trim(icon[4:], `"`)
+	case len(icon) > 0:
+		card.iconSrc, _ = url.Parse(icon)
+	}
+	return card
+}
+
 /******************************************************************************/
 
 func (card *CardSnippet) BuildTag() ickcore.Tag {
@@ -84,11 +114,21 @@ func (card *CardSnippet) BuildTag() ickcore.Tag {
 func (card *CardSnippet) RenderContent(out io.Writer) error {
 
 	imgc := ick.Elem("div", `class="cardlink-img"`)
-	if card.IconSrc == nil || card.IconSrc.Path == "" {
-		img := ickcore.ToHTML(_defaultIcon)
+	switch {
+	case card.iconSVG != "":
+		img := ickcore.ToHTML(card.iconSVG)
 		imgc.Append(img)
-	} else {
-		img := ickcore.ToHTML(`<img role="img" src="` + card.IconSrc.String() + `">`)
+	case card.iconChar != "":
+		img := ickcore.ToHTML(`<span>` + card.iconChar + `</span>`)
+		imgc.Append(img)
+	case card.iconCssClass != "":
+		img := ickcore.ToHTML(`<span class="icon"><i class="` + card.iconCssClass + `"></i></span>`)
+		imgc.Append(img)
+	case card.iconSrc != nil && card.iconSrc.Path != "":
+		img := ickcore.ToHTML(`<img role="img" src="` + card.iconSrc.String() + `">`)
+		imgc.Append(img)
+	default:
+		img := ickcore.ToHTML(_defaultIcon)
 		imgc.Append(img)
 	}
 

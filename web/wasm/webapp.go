@@ -8,7 +8,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -162,9 +161,7 @@ func DownloadData(yaml string) (LinkerPod, error) {
 		}
 
 		lnk := Card(lnkkey, ylnk.Name).ParseHRef(ylnk.Link)
-		if ylnk.Icon != "" {
-			lnk.IconSrc, _ = url.Parse(ylnk.Icon)
-		}
+		lnk.SetIcon(ylnk.Icon)
 		lp.LinksMap[lnkkey] = lnk
 
 		// insert card in Minipods

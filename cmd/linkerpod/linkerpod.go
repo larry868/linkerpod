@@ -85,7 +85,6 @@ func main() {
 			ylnk.Link = strings.ToLower(strings.Trim(ylnk.Link, " "))
 
 			isincache := strings.HasPrefix(ylnk.Icon, PATH_CACHEICONS)
-			isblank := ylnk.Icon == ""
 
 			fup := false
 			if resetcache {
@@ -95,6 +94,8 @@ func main() {
 					isincache = false
 				}
 			}
+
+			isblank := ylnk.Icon == ""
 
 			if loadicons && ylnk.Link != "" {
 				if isblank || (overwrite && isincache) {
@@ -116,6 +117,7 @@ func main() {
 		}
 
 		if nok > 0 {
+			// TODO: backup previous file
 			file.Seek(0, 0)
 			file.Truncate(0)
 			file.WriteString("# Linkerpod setup file\n")
@@ -127,7 +129,7 @@ func main() {
 			}
 		}
 
-		fmt.Printf("favicon cache update: %v success, %v fail\n", nok, nko)
+		fmt.Printf("favicon cache: %v link update, %v link fail\n", nok, nko)
 		os.Exit(0)
 	} else {
 		fmt.Printf("pod %q: has %v minipods and %v links\n", yamlpath, len(ys.MiniPods), len(ys.Links))
