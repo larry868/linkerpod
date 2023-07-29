@@ -11,20 +11,18 @@ tasks:
   build2docs:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
-      - rm -rf ./website
       - rm -rf ./docs
       - mkdir -p ./docs
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
-      - cp ./docs/linkerpod.html ./docs/index.html
+      - cp ./docs/linkerpod_bkp.yaml ./docs/linkerpod.yaml
+      - mv ./docs/linkerpod.html ./docs/index.html
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
 
 #> task -t ./build/Taskfile.yaml build2website
   build2website:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
-      - rm -rf ./docs
-      - rm -rf ./website
       - mkdir -p ./website
       - cp -R ./web/static/** ./website
       - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
@@ -43,8 +41,8 @@ tasks:
     cmds: 
       - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
 
-#> task -t ./build/Taskfile.yaml dev --watch
-  dev:
+#> task -t ./build/Taskfile.yaml website --watch
+  website:
     dir: '{{.USER_WORKING_DIR}}'
     cmds: 
       - mkdir -p ./website
