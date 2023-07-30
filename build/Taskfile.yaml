@@ -7,8 +7,8 @@ interval: '1000ms'
 
 tasks:
 
-#> task -t ./build/Taskfile.yaml rebuilddocs
-  rebuilddocs:
+#> task -t ./build/Taskfile.yaml rebuild
+  rebuild:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf ./docs
