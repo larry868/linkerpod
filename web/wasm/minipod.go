@@ -2,12 +2,15 @@ package main
 
 import (
 	"io"
+	"net/url"
+	"strings"
 
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/event"
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
+	"github.com/lolorenzo777/loadfavicon/v2/pkg/svg"
 )
 
 type MiniPodSnippet struct {
@@ -15,7 +18,12 @@ type MiniPodSnippet struct {
 	dom.UI
 
 	Name string // mini pod name
-	Icon ick.ICKIcon
+
+	iconSrc      *url.URL // URL of the icon
+	iconSVG      string
+	iconCssClass string
+	iconChar     string // single char like a favicon
+
 	Body []*CardSnippet // rendered as <div class="card-content">
 
 	IsExpanded bool
@@ -33,9 +41,9 @@ func MiniPod(key string, name string, iconkey string, abc string) *MiniPodSnippe
 	n.Tag().SetId(key)
 	n.Name = name
 	if iconkey != "" {
-		n.Icon.Key = iconkey
+		n.SetIcon(iconkey)
 	} else {
-		n.Icon.Key = "bi bi-dot"
+		n.SetIcon("bi bi-dot")
 	}
 	n.ABC = abc
 	return n
@@ -70,6 +78,28 @@ func (mp MiniPodSnippet) ABCGroup() string {
 	return ""
 }
 
+// SetIcon
+func (mp *MiniPodSnippet) SetIcon(icon string) *MiniPodSnippet {
+	switch {
+	case svg.IsValidSVG([]byte(icon)):
+		mp.iconSVG = icon
+		// TODO: CardSnippet- change internal svg properties such as weight and height
+	case len(icon) > 4 && icon[:4] == "chr=":
+		mp.iconChar = strings.Trim(icon[4:], `"`)
+		for index, runeValue := range mp.iconChar {
+			if index == 0 {
+				mp.iconChar = string(runeValue)
+				break
+			}
+		}
+	case len(icon) > 4 && icon[:4] == "css=":
+		mp.iconCssClass = strings.Trim(icon[4:], `"`)
+	case len(icon) > 0:
+		mp.iconSrc, _ = url.Parse(icon)
+	}
+	return mp
+}
+
 /******************************************************************************/
 
 func (mp *MiniPodSnippet) NeedRendering() bool {
@@ -89,7 +119,29 @@ func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 
 	ickcore.RenderString(out, `<header class="card-header">`, `<p class="card-header-title pl-3">`)
-	ickcore.RenderChild(out, mp, &mp.Icon)
+
+	// ickcore.RenderChild(out, mp, &mp.Icon)
+	imgc := ick.Elem("span", `class="cardlink-img"`)
+	var img *ickcore.HTMLString
+	switch {
+	case mp.iconSVG != "":
+		img = ickcore.ToHTML(mp.iconSVG)
+		imgc.Append(img)
+	case mp.iconChar != "":
+		img = ickcore.ToHTML(`<span>` + mp.iconChar + `</span>`)
+		imgc.Append(img)
+	case mp.iconCssClass != "":
+		img = ickcore.ToHTML(`<span class="icon"><i class="` + mp.iconCssClass + `"></i></span>`)
+		imgc.Append(img)
+	case mp.iconSrc != nil && mp.iconSrc.Path != "":
+		img = ickcore.ToHTML(`<img role="img" src="` + mp.iconSrc.String() + `">`)
+		imgc.Append(img)
+	default:
+		img = ickcore.ToHTML(_defaultIcon)
+		imgc.Append(img)
+	}
+	ickcore.RenderChild(out, mp, imgc)
+
 	ickcore.RenderString(out, `<span class="ml-2">`+mp.Name+`</span>`)
 	ickcore.RenderString(out, `</p>`, `</header>`)
 
