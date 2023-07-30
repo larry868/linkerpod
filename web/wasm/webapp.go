@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/lolorenzo777/linkerpod/pkg/yamlpod"
-	"github.com/lolorenzo777/verbose"
 
 	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"
@@ -45,8 +44,8 @@ var (
 func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded and running...")
-	verbose.IsOn = true
-	verbose.IsDebugging = true
+	// verbose.IsOn = true
+	// verbose.IsDebugging = true
 
 	var err error
 
