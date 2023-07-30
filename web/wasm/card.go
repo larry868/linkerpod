@@ -25,7 +25,6 @@ type CardSnippet struct {
 
 	Name string // link card name, must be unique
 
-	// IconSrc    *url.URL // URL of the icon
 	iconSrc      *url.URL // URL of the icon
 	iconSVG      string
 	iconCssClass string
