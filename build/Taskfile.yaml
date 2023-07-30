@@ -7,8 +7,8 @@ interval: '1000ms'
 
 tasks:
 
-#> task -t ./build/Taskfile.yaml build2docs
-  build2docs:
+#> task -t ./build/Taskfile.yaml rebuilddocs
+  rebuilddocs:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - rm -rf ./docs
@@ -19,32 +19,24 @@ tasks:
       - mv ./docs/linkerpod.html ./docs/index.html
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
 
-#> task -t ./build/Taskfile.yaml build2website
-  build2website:
+#> task -t ./build/Taskfile.yaml dev --watch
+  dev:
     dir: '{{.USER_WORKING_DIR}}'
-    cmds:
-      - mkdir -p ./website
-      - cp -R ./web/static/** ./website
-      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
+    cmds: 
+      - mkdir -p ./docs
+      - task: static
+      - task: wasm
 
   static:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
       - "./web/static/**/*"
     cmds: 
-      - cp -R ./web/static/** ./website
+      - cp -R ./web/static/** ./docs
 
   wasm:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
-      - "web/wasm/*"
+      - "./web/wasm/*"
     cmds: 
-      - GOARCH=wasm GOOS=js go build -o ./website/webapp.wasm ./web/wasm
-
-#> task -t ./build/Taskfile.yaml website --watch
-  website:
-    dir: '{{.USER_WORKING_DIR}}'
-    cmds: 
-      - mkdir -p ./website
-      - task: static
-      - task: wasm
+      - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
