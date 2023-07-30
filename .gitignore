@@ -24,5 +24,4 @@ private.yaml
 .task
 tmp/
 *.*Identifier
-website/
 /build/website
