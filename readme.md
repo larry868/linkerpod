@@ -53,9 +53,10 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 ## Roadmap
 
+- [ ] make it a pwa
 - [ ] handle additional information on cards, not only link
 - [ ] encrypt private information
-- [ ] make it a pwa
+- [ ] keep comments in yaml setup file when running -loadfavicons
 
 In a futur version linkerpod could implement some Web3 technologies such as :
 - decentralized storage
