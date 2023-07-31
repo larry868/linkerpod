@@ -1,12 +1,12 @@
 # Linkerpod setup file
-# linkerpod.yaml to be customized
+# Copy this file, rename it as linkerpod.yaml, and customize it
 links:
     My first card:
         link: https://go.dev/
         icon: assets/.cacheicons/go-dev+svg.svg
         minipods:
             - minipod: My Minipod
-    My first global card:
+    My global card:
         link: https://linkerpod.net
     My second card:
         link: https://icecake.dev/
