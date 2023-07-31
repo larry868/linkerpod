@@ -27,6 +27,11 @@ const (
 	ICON_LIST  string = "bi bi-view-list"
 )
 
+const (
+	_setupfile        string = "linkerpod.yaml"
+	_setupdefaultfile string = "linkerpod_default.yaml"
+)
+
 var (
 	_btnLayout = ickui.Button("Tiles", "").
 			SetId("btnlayout").
@@ -52,9 +57,10 @@ func main() {
 	start := time.Now()
 
 	// title
-	yaml := "linkerpod.yaml"
 	u := dom.Doc().Body().BaseURI()
 	dom.Id("title").InsertText(dom.INSERT_BODY, path.Dir(u.String()))
+
+	yaml := _setupfile
 
 	// extract query if any
 	// TODO: encode the query
@@ -77,6 +83,9 @@ func main() {
 
 	if err == nil {
 		_lp, err = DownloadData(yaml)
+		if yaml == _setupfile && errors.Is(err, yamlpod.ErrGetYamlFile) {
+			_lp, err = DownloadData(_setupdefaultfile)
+		}
 	}
 
 	if err == nil {

@@ -3,6 +3,7 @@ package yamlpod
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -33,21 +34,23 @@ type YamlMiniPod struct {
 	Minipods []YamlMinipodInLink `yaml:"minipods,omitempty"`
 }
 
+var ErrGetYamlFile = errors.New("unable to get yaml setup file")
+
 func DownloadYaml(url string) (*YamlStruct, error) {
 	client := http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, err)
 	}
 	req.Header.Set("Permissions-Policy", "interest-cohort=()")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
+		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, errors.New(resp.Status))
 	}
 
 	return Unmarshal(resp.Body)

@@ -15,7 +15,6 @@ tasks:
       - mkdir -p ./docs
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
-      - cp ./docs/linkerpod_bkp.yaml ./docs/linkerpod.yaml
       - mv ./docs/linkerpod.html ./docs/index.html
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
 
