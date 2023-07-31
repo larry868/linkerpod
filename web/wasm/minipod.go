@@ -43,7 +43,7 @@ func MiniPod(key string, name string, iconkey string, abc string) *MiniPodSnippe
 	if iconkey != "" {
 		n.SetIcon(iconkey)
 	} else {
-		n.SetIcon("bi bi-dot")
+		n.SetIcon("css=bi bi-dot")
 	}
 	n.ABC = abc
 	return n
