@@ -30,6 +30,7 @@ Sources of inspiration:
 Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 1. fork linkerpod 
+1. copy the default setup file `/docs/linkerpod_default.yaml` to `/docs/linkerpod.yaml`
 1. customize the `/docs/linkerpod.yaml` file with your own links
 1. if you want to display website favicons rather than icons you've selected:
     - download favicons and set them in a cache with the following command:
@@ -37,19 +38,6 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
     1. go to docs in your forked repo: `cd {your_lnkerpod_repo}/docs`
     1. run `linkerpod -loadfavicons`
 1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`
-
-### Install on any server able to serve static html pages
-1. fork linkerpod 
-1. move all the `/docs/` dir to you own `{your_website}` path
-1. customize the `/{your_website}/linkerpod.yaml` file with your own links
-1. if you want to display website favicons rather than icons you've selected:
-    - download favicons and set them in a cache with the following command:
-    1. install linkerpod with `go install github.com/lolorenzo777/linkerpod`
-    1. go to your website: `cd {your_website}`
-    1. run `linkerpod -loadfavicons`
-1. publish `{your_website}` to your production environment
-
-
 
 ## Roadmap
 
