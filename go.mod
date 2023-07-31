@@ -2,8 +2,6 @@ module github.com/lolorenzo777/linkerpod
 
 go 1.20
 
-replace github.com/icecake-framework/icecake => ./../../icecake-framework/icecake
-
 require (
 	github.com/gosimple/slug v1.13.1
 	github.com/icecake-framework/icecake v0.1.0-alpha5
