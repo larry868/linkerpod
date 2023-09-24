@@ -56,7 +56,7 @@ In a futur version linkerpod could implement some Web3 technologies such as :
 
 ## Tech
 
-- Go 1.20
+- Go 1.21
 - CSS responsive framework, without any JS code: [Bulma](https://bulma.io/)
 - [icecake framework](icecake.dev)
     - web assembly [see wasm doc](https://developer.mozilla.org/fr/docs/WebAssembly)
