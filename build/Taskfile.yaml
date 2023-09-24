@@ -13,6 +13,7 @@ tasks:
     cmds:
       - rm -rf ./docs
       - mkdir -p ./docs
+      - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
       - mv ./docs/linkerpod.html ./docs/index.html
@@ -31,6 +32,7 @@ tasks:
     sources: 
       - "./web/static/**/*"
     cmds: 
+      - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
       - cp -R ./web/static/** ./docs
 
   wasm:
