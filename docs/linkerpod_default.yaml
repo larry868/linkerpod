@@ -5,16 +5,21 @@ links:
         link: https://go.dev/
         icon: assets/.cacheicons/go-dev+svg.svg
         minipods:
-            - minipod: My Minipod
+            - minipod: My Minipod 1
     My global card:
         link: https://linkerpod.net
     My second card:
         link: https://icecake.dev/
         icon: assets/.cacheicons/icecake-dev+256x256.ico
         minipods:
-            - minipod: My Minipod
+            - minipod: My Minipod 2
     My second global card:
         link: https://github.com/lolorenzo777/linkerpod
         icon: assets/.cacheicons/github-com+svg.svg
+    Emotji:
+        name: Best emotji
+        link: https://getemoji.com/
+        icon: "chr=\U0001F600"
 minipods:
-    My Minipod: {}
+    My Minipod 1: {}
+    My Minipod 2: {}
