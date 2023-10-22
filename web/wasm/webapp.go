@@ -113,14 +113,14 @@ func main() {
 }
 
 func OnToggleLayout() {
-	if _lp.IsTiles {
+	if _lp.Layout == LAYOUT_LIST {
 		_btnLayout.Title = "Tiles"
 		_btnLayout.OpeningIcon.Key = ICON_TILES
-		_lp.SetTiles(false)
+		_lp.SetLayout(LAYOUT_TILES)
 	} else {
 		_btnLayout.Title = "List"
 		_btnLayout.OpeningIcon.Key = ICON_LIST
-		_lp.SetTiles(true)
+		_lp.SetLayout(LAYOUT_LIST)
 	}
 	_btnLayout.RefreshContent(_btnLayout)
 	_btnLayout.DOM.Blur()

@@ -1,17 +1,28 @@
 # Linkerpod
 
-Linkerpod allows referencing a set of URL links (aka. social media profiles), personnal info like licence number or web3 public keys, and monitoring informations to a single page and sharable link.
+LinkerPod: Unleash Your Digital Identity
 
-Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
+In the digital age, your online presence is your identity. LinkerPod is your key to unlocking and enhancing that identity. It serves as your personal hub, a central command center where you can curate, manage, and showcase every aspect of your digital life. Whether you're a developer looking to flaunt your projects, a content creator sharing your expertise, or simply someone wanting a sleek online presence, LinkerPod empowers you to take control of your digital identity.
+
+With LinkerPod, you're not just creating a web page; you're crafting your digital identity. It's time to unleash the full potential of your online presence with LinkerPod: Unleash Your Digital Identity.
 
 ## Promises
 
-- build your own page of links in seconds
-- stop spending time to look for your links
-- get you public keys or your IDs instantly
-- share collections of links
-- monitor your favorite website or homelab
-- display information from API queries
+1. Centralized Control: LinkerPod offers you a unified platform to manage your online presence effortlessly. From links to social profiles, public keys, personal information, and projects, it's all in one place, under your control.
+1. Simplified Link Management: Easily add, organize, and categorize your links to various online profiles, projects, and resources. No more scattered links or outdated information.
+1. Branded Domains: Establish a professional and memorable online identity by connecting your custom domain. With LinkerPod, your digital presence will stand out.
+1. Effortless Sharing: Share collections of your links with a unique and simple URL. Whether it's a link-in-bio for your social media, a portfolio for your projects, or a curated list of your favorite resources, sharing is seamless.
+1. Privacy Empowerment: Your digital identity should be as private or public as you want it to be. LinkerPod provides robust privacy controls, so you decide who can see your links and content.
+1. Developer Integration: If you're a developer, LinkerPod seamlessly integrates with your favorite tools and APIs. Showcase your GitHub repositories, Stack Overflow contributions, or any valuable information with ease.
+
+## Key features
+
+Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
+
+- Build you own page
+- Group and organize many web links to a single page
+- Deployed over you domain or sub-domain.
+- Integration with APIs.
 
 Linkerpod is an experimental webapp written in go with the [icecake framework](icecake.dev).
 
@@ -21,9 +32,9 @@ Sources of inspiration:
 
 ## Demo
 
-[linkerpod demo](https://lolorenzo777.github.io/linkerpod/)
+[linkerpod homepage](https://linkerpod.net) is a linkerpod made with linerpod !
 
-## Usage
+## Usage : make your own linkerpod
 
 ### Install on GitHub Pages
 
@@ -41,10 +52,12 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 ## Roadmap
 
-- [ ] make it a pwa
+- [ ] make it a pwa with non connected mode
 - [ ] handle additional information on cards, not only link
 - [ ] encrypt private information
 - [ ] keep comments in yaml setup file when running -loadfavicons
+- [ ] implement seo features
+- [ ] header section
 
 In a futur version linkerpod could implement some Web3 technologies such as :
 - decentralized storage
@@ -53,6 +66,7 @@ In a futur version linkerpod could implement some Web3 technologies such as :
 - work with avatar
 - encrypt data
 - reward with tokens
+- use IA to get the icons for minipods
 
 ## Tech
 
@@ -62,15 +76,18 @@ In a futur version linkerpod could implement some Web3 technologies such as :
     - web assembly [see wasm doc](https://developer.mozilla.org/fr/docs/WebAssembly)
     - fullstack in go (no JS) [see this post to use wasm in GO](https://tutorialedge.net/golang/writing-frontend-web-framework-webassembly-go/)
 
+### About Web Assembly with go
+
+Some documentation available here https://tinygo.org/docs/guides/webassembly/ and here https://github.com/golang/go/wiki/WebAssembly
+
+Go provides a specific js file called `wasm_exec.js` that need to be served by your webpapp. This file mustbe part of the static assets to be served by the server. To get the latest version you can _extract_ it from you go installation: `cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static`
+
 ## Project directory structure
 
 The Directory structure follows [go ecosystem recommendation](https://github.com/golang-standards/project-layout).
 
 ```bash
 linkerpod
-│   ├── readme.md
-│   └── .gitignore
-│
 ├── build                           # build scripts
 │   └── Taskfile.yaml               # building task configuration, ic. autobuild the front
 │
@@ -78,7 +95,7 @@ linkerpod
 │   └── linkerpod                 
 │       └── linkerpod.go            # source for the linkerpod CLI
 │
-├── examples                        # examples of linkerpod setup files
+├── examples                        # examples of linkerpod yaml setup files
 │
 ├── pkg                             # common sources for the command line and the wasm code
 │
@@ -87,7 +104,7 @@ linkerpod
 │   ├── saas
 │   │       └── [*.*]               # any saas files
 │   │
-│   ├── static
+│   ├── static                      # 
 │   │   ├── assets
 │   │   │   ├── wasm_exec.js        # this file is mandatory and is provided by the go compiler
 │   │   │   ├── wasm_loader.js      # this file is required to load the wasm code
@@ -96,7 +113,8 @@ linkerpod
 │   │   └── linkerpod.yaml          # The default linkerpod setup file
 │   │
 │   └── wasm
-│       └── webapp.go               # the front app entry point, uses components
+│       └── webapp.go               # the front app entry point
+│           └── [*.*]               # front app wasm components
 │
 ├── website OR docs                 # the self sufficient dir to serve the app in production, built with prod tasks (see Taskfile.yaml)
 │   ├── *.*
@@ -106,27 +124,24 @@ linkerpod
 _\* The `./web/bulma-0.9.4` directory is not sync with git. It need to be downloaded on the [bulma site](https://bulma.io/documentation/customize/with-sass-cli/)_
 
 
-### About Web Assembly with go
-
-Some documentation available here https://tinygo.org/docs/guides/webassembly/ and here https://github.com/golang/go/wiki/WebAssembly
-
-Go provides a specific js file called `wasm_exec.js` that need to be served by your webpapp. This file mustbe part of the static assets to be served by the server. To get the latest version you can _extract_ it from you go installation: `cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static`
-
 ## Development
+
+If you want to work on the layout, to debug, or to add features, consider the following:
 
 We use ``task`` as task runner. See [Taskfile Installation](https://taskfile.dev/installation/) doc to install it.
 
-In development mode run the `dev` task from the root path with the `--watch flag`:
+Run the `devinit` task from the root path to setup the `tmp` directory.
+
+Then run the `dev` task with the `--watch flag` to live reload your `linkedpod.html` page:
 
 ```bash
 task -t ./build/Taskfile.yaml dev --watch
 ```
 
-Run the `build2docs` task to compile the linkerdpod wasm file and to rebuild the `/docs` directory.
 
-```bash
-task -t ./build/Taskfile.yaml build2docs
-```
+
+## Rebuild
+
 
 :warning: This rebuilds the `/docs` directory and clears all its content. Backup your linkerpod setup file before to run it.
 

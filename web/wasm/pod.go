@@ -10,11 +10,18 @@ import (
 	"github.com/icecake-framework/icecake/pkg/ickcore"
 )
 
+type LAYOUT int
+
+const (
+	LAYOUT_TILES LAYOUT = iota
+	LAYOUT_LIST
+)
+
 type LinkerPod struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	IsTiles bool
+	Layout LAYOUT
 
 	LinksMap   map[string]*CardSnippet
 	MiniPodMap map[string]*MiniPodSnippet
@@ -30,30 +37,31 @@ func NewLinkerPod() *LinkerPod {
 	return n
 }
 
-func (mp *LinkerPod) SetTiles(f bool) {
-	mp.IsTiles = f
+func (lp *LinkerPod) SetLayout(layout LAYOUT) {
+	lp.Layout = layout
 
-	for _, l := range mp.LinksMap {
-		l.DOM.SetClassIf(mp.IsTiles, "mr-4")
+	for _, l := range lp.LinksMap {
+		l.DOM.SetClassIf(lp.Layout == LAYOUT_TILES, "mr-4")
 	}
 
-	for _, p := range mp.MiniPodMap {
-		p.DOM.SetClassIf(mp.IsTiles, "mr-4")
+	for _, p := range lp.MiniPodMap {
+		p.DOM.SetClassIf(lp.Layout == LAYOUT_TILES, "mr-4")
 		p.OnOpenClose(false)
 	}
 
-	dom.Id("minipods").SetClassIf(mp.IsTiles, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
-	dom.Id("nominipod").SetClassIf(mp.IsTiles, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
+	dom.Id("minipods").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
+	dom.Id("nominipod").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
+	// browser.LocalStorage().Set("layout", strconv.Itoa(int(lp.Layout)))
 }
 
 /******************************************************************************/
 
-func (mp *LinkerPod) BuildTag() ickcore.Tag {
-	mp.Tag().SetTagName("layout")
-	return *mp.Tag()
+func (lp *LinkerPod) BuildTag() ickcore.Tag {
+	lp.Tag().SetTagName("layout")
+	return *lp.Tag()
 }
 
-func (mp *LinkerPod) RenderContent(out io.Writer) error {
+func (lp *LinkerPod) RenderContent(out io.Writer) error {
 	ickcore.RenderString(out, `<div id="minipods"></div>`)
 	ickcore.RenderString(out, `<div id="nominipod"></div>`)
 	return nil
@@ -62,7 +70,7 @@ func (mp *LinkerPod) RenderContent(out io.Writer) error {
 /******************************************************************************/
 
 // Mount inserts minipods and single cards. If at correspond to the id of a minipod then opens it
-func (mp *LinkerPod) Mount(at string) error {
+func (lp *LinkerPod) Mount(at string) error {
 	at = strings.ToLower(at)
 
 	// get sorted list of ABCGroups

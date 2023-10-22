@@ -1,5 +1,5 @@
 # https://taskfile.dev
-# run task from the root with "task {mytask} -t /build/Taskfile.yaml"
+# run 'task' from the project root with "task {mytask} -t /build/Taskfile.yaml"
 
 version: '3'
 
@@ -14,30 +14,43 @@ tasks:
       - rm -rf ./docs
       - mkdir -p ./docs
       - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
+      
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
+      - cp ./web/static/favicon.ico ./docs
       - mv ./docs/linkerpod.html ./docs/index.html
       - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
+
+#> task -t ./build/Taskfile.yaml devinit
+  devinit:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds: 
+      - mkdir -p ./tmp
+      - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
 
 #> task -t ./build/Taskfile.yaml dev --watch
   dev:
     dir: '{{.USER_WORKING_DIR}}'
-    cmds: 
-      - mkdir -p ./docs
-      - task: static
-      - task: wasm
+    deps: [dev_static, dev_wasm]
 
-  static:
+  dev_static:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
       - "./web/static/**/*"
     cmds: 
-      - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
-      - cp -R ./web/static/** ./docs
+      - task: dev_yaml
+      - cp -R ./web/static/** ./tmp
 
-  wasm:
+  dev_wasm:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
       - "./web/wasm/*"
     cmds: 
-      - GOARCH=wasm GOOS=js go build -o ./docs/webapp.wasm ./web/wasm
+      - GOARCH=wasm GOOS=js go build -o ./tmp/webapp.wasm ./web/wasm
+
+  dev_yaml:
+    dir: '{{.USER_WORKING_DIR}}'
+    sources: 
+      - "./web/static/linkerpod_default.yaml"
+    cmds: 
+      - go run "./cmd/linkerpod" -pod="./web/static/linkerpod_default.yaml" -loadfavicons
