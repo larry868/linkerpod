@@ -118,9 +118,12 @@ func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 // RenderContent
 func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 
+	if mp.Name == "header" || mp.Name == "footer" {
+		return mp.RenderLinkList(out)
+	}
+
 	ickcore.RenderString(out, `<header class="card-header">`, `<p class="card-header-title pl-3">`)
 
-	// ickcore.RenderChild(out, mp, &mp.Icon)
 	imgc := ick.Elem("span", `class="cardlink-img"`)
 	var img *ickcore.HTMLString
 	switch {
@@ -150,6 +153,23 @@ func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 		ishidden = ""
 	}
 	ickcore.RenderString(out, `<div class="card-content pt-2 px-2 pb-1 `+ishidden+`">`)
+	mp.RenderLinkList(out)
+	ickcore.RenderString(out, `</div>`)
+
+	if mp.HasMore > 0 {
+		btnmore := ickui.Button("More...").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
+		btnmore.OnClick = mp.OnShowMeMore
+		ickcore.RenderString(out, `<div class="card-footer is-hidden">`)
+		ickcore.RenderString(out, `<span class="card-footer-item is-justify-content-flex-start">`)
+		ickcore.RenderChild(out, mp, btnmore)
+		ickcore.RenderString(out, `</span>`)
+		ickcore.RenderString(out, `</div>`)
+	}
+	return nil
+}
+
+// RenderLinkList
+func (mp *MiniPodSnippet) RenderLinkList(out io.Writer) error {
 	var lastabc byte
 	for _, cinbody := range mp.Body {
 		if lastabc != 0 && len(cinbody.ABC) > 0 && cinbody.ABC[0] != lastabc {
@@ -165,23 +185,16 @@ func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 		}
 		lastabc = cinbody.ABC[0]
 	}
-	ickcore.RenderString(out, `</div>`)
-
-	if mp.HasMore > 0 {
-		btnmore := ickui.Button("More...").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
-		btnmore.OnClick = mp.OnShowMeMore
-		ickcore.RenderString(out, `<div class="card-footer is-hidden">`)
-		ickcore.RenderString(out, `<span class="card-footer-item is-justify-content-flex-start">`)
-		ickcore.RenderChild(out, mp, btnmore)
-		ickcore.RenderString(out, `</span>`)
-		ickcore.RenderString(out, `</div>`)
-	}
 	return nil
 }
 
 // AddListeners
 func (mp *MiniPodSnippet) AddListeners() {
 	if !mp.DOM.IsInDOM() {
+		return
+	}
+
+	if mp.Name == "header" || mp.Name == "footer" {
 		return
 	}
 
@@ -196,6 +209,10 @@ func (mp *MiniPodSnippet) AddListeners() {
 /******************************************************************************/
 
 func (mp *MiniPodSnippet) OnOpenClose(open bool) {
+	if mp.Name == "header" || mp.Name == "footer" {
+		return
+	}
+
 	if !open {
 		mp.IsOpen = false
 		cmores := mp.DOM.ChildrenByClassName("more")

@@ -41,7 +41,7 @@ var (
 			SetIcon(*ick.Icon(ICON_TILES), false).
 			SetSize(ick.SIZE_SMALL)
 
-	_lp LinkerPod
+	_gpod LinkerPod
 )
 
 // The main func is required by the wasm GO builder.
@@ -57,14 +57,13 @@ func main() {
 	start := time.Now()
 
 	// title
-	u := dom.Doc().Body().BaseURI()
-	dom.Id("title").InsertText(dom.INSERT_BODY, path.Dir(u.String()))
+	baseuri := dom.Doc().Body().BaseURI()
+	dom.Id("title").InsertText(dom.INSERT_BODY, path.Dir(baseuri.String()))
 
-	yaml := _setupfile
-
-	// extract query if any
+	// get yaml filename from the query if any
 	// TODO: encode the query
-	q := u.Query()
+	yaml := _setupfile
+	q := baseuri.Query()
 	if len(q) > 0 {
 		pod := q["pod"]
 		if len(pod) > 0 && pod[0] != "" {
@@ -79,32 +78,39 @@ func main() {
 			}
 		}
 	}
+
+	// subtitle
 	dom.Id("subtitle").InsertText(dom.INSERT_BODY, yaml[:len(yaml)-5])
 
+	// load the linkerpod yaml file
 	if err == nil {
-		_lp, err = DownloadData(yaml)
+		_gpod, err = DownloadData(yaml)
 		if yaml == _setupfile && errors.Is(err, yamlpod.ErrGetYamlFile) {
-			_lp, err = DownloadData(_setupdefaultfile)
+			_gpod, err = DownloadData(_setupdefaultfile)
 		}
 	}
 
+	// feed the webapp page content
 	if err == nil {
-		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_lp)
-		_lp.Mount(u.Fragment)
+		// insert linkerpod snippet into the DOM and mount it
+		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_gpod)
+		_gpod.Mount(baseuri.Fragment)
 
+		// setup the button
 		_btnLayout.OnClick = OnToggleLayout
 		dom.Id("webapp").InsertSnippet(dom.INSERT_FIRST_CHILD,
 			ick.Elem("div", `class="level is-mobile"`,
 				ick.Elem("div", `class="level-left"`,
 					ick.Elem("div", `class="level-item"`, _btnLayout))))
-
 		_btnLayout.SetDisabled(false)
-		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
+	// display & log loading status
 	if err != nil {
 		console.Errorf(err.Error())
 		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, ick.Message(ickcore.ToHTML("Unable to load this linkerpod.")).SetColor(ick.COLOR_DANGER))
+	} else {
+		fmt.Printf("Linkerpod loaded and displayed in %v\n", time.Since(start).Round(time.Millisecond))
 	}
 
 	// let's go
@@ -112,22 +118,22 @@ func main() {
 	<-c
 }
 
+// OnToggleLayout toggle the layout of the overall pod and toggle the layout button content
 func OnToggleLayout() {
-	if _lp.Layout == LAYOUT_LIST {
+	if _gpod.Layout == LAYOUT_LIST {
 		_btnLayout.Title = "Tiles"
 		_btnLayout.OpeningIcon.Key = ICON_TILES
-		_lp.SetLayout(LAYOUT_TILES)
+		_gpod.SetLayout(LAYOUT_TILES)
 	} else {
 		_btnLayout.Title = "List"
 		_btnLayout.OpeningIcon.Key = ICON_LIST
-		_lp.SetLayout(LAYOUT_LIST)
+		_gpod.SetLayout(LAYOUT_LIST)
 	}
 	_btnLayout.RefreshContent(_btnLayout)
 	_btnLayout.DOM.Blur()
 }
 
-/******************************************************************************/
-
+// DownloadData download the pod data from the yaml server file
 func DownloadData(yaml string) (LinkerPod, error) {
 
 	lp := NewLinkerPod()
@@ -148,9 +154,15 @@ func DownloadData(yaml string) (LinkerPod, error) {
 			console.Warnf("DownloadData.minipods: duplicate minipod id %q", ympk)
 			continue
 		}
-		mp := MiniPod(ympk, ymp.Name, ymp.Icon, strings.ToLower(ymp.ABC))
+		mp := MiniPod(ympk, ymp.Name, ymp.Icon, "2"+strings.ToLower(ymp.ABC))
 		lp.MiniPodMap[ympk] = mp
 	}
+
+	// add header and footer minipods
+	mph := MiniPod("mp-header", "header", "", "1")
+	lp.MiniPodMap["mp-header"] = mph
+	mpf := MiniPod("mp-footer", "footer", "", "3")
+	lp.MiniPodMap["mp-footer"] = mpf
 
 	// parse lp.LinksMap
 	for ylnkk, ylnk := range ys.Links {

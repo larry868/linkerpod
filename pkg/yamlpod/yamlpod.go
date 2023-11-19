@@ -24,7 +24,7 @@ type YamlLink struct {
 }
 
 type YamlMinipodInLink struct {
-	MinipodKey string `yaml:"minipod"`
+	MinipodKey string `yaml:"minipod,omitempty"`
 	ABC        string `yaml:"abc,omitempty"`
 }
 

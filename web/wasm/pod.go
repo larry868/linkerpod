@@ -49,8 +49,10 @@ func (lp *LinkerPod) SetLayout(layout LAYOUT) {
 		p.OnOpenClose(false)
 	}
 
+	dom.Id("podlinks-header").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
 	dom.Id("minipods").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
-	dom.Id("nominipod").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
+	dom.Id("podlinks-footer").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
+	dom.Id("podlinks-orphan").SetClassIf(lp.Layout == LAYOUT_TILES, "is-flex is-flex-direction-row is-flex-wrap-wrap is-justify-content-flex-start is-align-content-flex-start is-align-items-flex-start")
 	// browser.LocalStorage().Set("layout", strconv.Itoa(int(lp.Layout)))
 }
 
@@ -62,8 +64,10 @@ func (lp *LinkerPod) BuildTag() ickcore.Tag {
 }
 
 func (lp *LinkerPod) RenderContent(out io.Writer) error {
+	ickcore.RenderString(out, `<div id="podlinks-header"></div>`)
 	ickcore.RenderString(out, `<div id="minipods"></div>`)
-	ickcore.RenderString(out, `<div id="nominipod"></div>`)
+	ickcore.RenderString(out, `<div id="podlinks-footer"></div>`)
+	ickcore.RenderString(out, `<div id="podlinks-orphan"></div>`)
 	return nil
 }
 
@@ -73,59 +77,84 @@ func (lp *LinkerPod) RenderContent(out io.Writer) error {
 func (lp *LinkerPod) Mount(at string) error {
 	at = strings.ToLower(at)
 
-	// get sorted list of ABCGroups
-	abcgs := make([]string, 0)
+	// sort list of Minipods' ABCGroups
+	xabcgs := make([]string, 0)
 nextmp:
-	for _, mp := range _lp.MiniPodMap {
+	for _, mp := range _gpod.MiniPodMap {
 		g := mp.ABCGroup()
-		for _, k := range abcgs {
+		for _, k := range xabcgs {
 			if g == k {
 				continue nextmp
 			}
 		}
-		abcgs = append(abcgs, g)
+		xabcgs = append(xabcgs, g)
 	}
-	sort.Strings(abcgs)
+	sort.Strings(xabcgs)
 
 	// Insert Sorted MiniPodMap by abc
-	for _, abcg := range abcgs {
+	for _, xabcg := range xabcgs {
 
 		mpking := make([]string, 0)
-		for mpk, mp := range _lp.MiniPodMap {
-			if mp.ABCGroup() == abcg {
+		for mpk, mp := range _gpod.MiniPodMap {
+			if mp.ABCGroup() == xabcg {
 				mpking = append(mpking, mpk)
 			}
 		}
 		sort.Slice(mpking, func(i, j int) bool {
-			if _lp.MiniPodMap[mpking[i]].ABC == _lp.MiniPodMap[mpking[j]].ABC {
-				return _lp.MiniPodMap[mpking[i]].Name < _lp.MiniPodMap[mpking[j]].Name
+			if _gpod.MiniPodMap[mpking[i]].ABC == _gpod.MiniPodMap[mpking[j]].ABC {
+				return _gpod.MiniPodMap[mpking[i]].Name < _gpod.MiniPodMap[mpking[j]].Name
 			}
-			return _lp.MiniPodMap[mpking[i]].ABC < _lp.MiniPodMap[mpking[j]].ABC
+			return _gpod.MiniPodMap[mpking[i]].ABC < _gpod.MiniPodMap[mpking[j]].ABC
 		})
 
 		mpg := ick.Elem("div", `class="pb-3"`)
-		mpg.Tag().SetId("minipods." + abcg)
-		for _, k := range mpking {
-			if strings.ToLower(_lp.MiniPodMap[k].Tag().Id()) == at {
-				_lp.MiniPodMap[k].IsOpen = true
+		x := xabcg[0]
+		switch x {
+		case '1':
+			mpg.Tag().SetId("minipod.header")
+		case '3':
+			mpg.Tag().SetId("minipod.footer")
+		default:
+			if len(xabcg) > 1 {
+				mpg.Tag().SetId("minipod." + xabcg[1:len(xabcg)])
+			} else {
+				mpg.Tag().SetId("minipod._void")
 			}
-			mpg.Append(_lp.MiniPodMap[k])
 		}
-		dom.Id("minipods").InsertSnippet(dom.INSERT_LAST_CHILD, mpg)
 
+		for _, k := range mpking {
+			if strings.ToLower(_gpod.MiniPodMap[k].Tag().Id()) == at {
+				_gpod.MiniPodMap[k].IsOpen = true
+			}
+			mpg.Append(_gpod.MiniPodMap[k])
+		}
+
+		switch x {
+		case '1':
+			dom.Id("podlinks-header").InsertSnippet(dom.INSERT_LAST_CHILD, mpg)
+		case '3':
+			dom.Id("podlinks-footer").InsertSnippet(dom.INSERT_LAST_CHILD, mpg)
+		default:
+			dom.Id("minipods").InsertSnippet(dom.INSERT_LAST_CHILD, mpg)
+		}
 	}
-	// Insert Sorted single LinksMap
-	kl := make([]string, 0, len(_lp.LinksMap))
-	for k, l := range _lp.LinksMap {
+
+	// Insert orphan links (not in any minipod)
+	kl := make([]string, 0, len(_gpod.LinksMap))
+	for k, l := range _gpod.LinksMap {
 		if l.InMiniPods == 0 {
 			kl = append(kl, k)
 		}
 	}
-	sort.Strings(kl)
-	eno := dom.Id("nominipod")
-	for _, k := range kl {
-		_lp.LinksMap[k].Expand(true)
-		eno.InsertSnippet(dom.INSERT_LAST_CHILD, _lp.LinksMap[k])
+	if len(kl) > 0 {
+		eno := dom.Id("podlinks-orphan")
+		eno.InsertRawHTML(dom.INSERT_LAST_CHILD, `<hr class="mt-2"/>`)
+
+		sort.Strings(kl)
+		for _, k := range kl {
+			_gpod.LinksMap[k].Expand(true)
+			eno.InsertSnippet(dom.INSERT_LAST_CHILD, _gpod.LinksMap[k])
+		}
 	}
 
 	return nil

@@ -19,9 +19,13 @@ links:
     Github:
         link: https://github.com/lolorenzo777/linkerpod
         icon: assets/.cacheicons/github-com+svg+.svg
+        minipods:
+            - minipod: header
     Go Package:
         link: https://pkg.go.dev/github.com/lolorenzo777/linkerpod
         icon: assets/.cacheicons/pkg-go-dev+32x32+.ico
+        minipods:
+            - minipod: header
     Icecake Go Wasm Framework:
         link: https://icecake.dev/
         icon: assets/.cacheicons/icecake-dev+256x256.ico
@@ -33,6 +37,8 @@ links:
     MIT Licence:
         link: https://choosealicense.com/licenses/mit/
         icon: assets/.cacheicons/choosealicense-com+32x32+.ico
+        minipods:
+            - minipod: footer
     go wasm:
         name: Go Web Assembly
         link: https://github.com/golang/go/wiki/webassembly
