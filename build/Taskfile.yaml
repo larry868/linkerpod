@@ -15,6 +15,7 @@ tasks:
       - mkdir -p ./docs
       - cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./web/static/assets
       
+      - sass ./web/sass/linkerpod.scss:./web/static/assets/linkerpod.css
       - cp -R ./web/static/** ./docs
       - cp ./web/static/.nojekyll ./docs
       - cp ./web/static/favicon.ico ./docs
@@ -31,7 +32,15 @@ tasks:
 #> task -t ./build/Taskfile.yaml dev --watch
   dev:
     dir: '{{.USER_WORKING_DIR}}'
-    deps: [dev_static, dev_wasm]
+    deps: [dev_sass, dev_static, dev_wasm]
+
+  dev_sass:
+    dir: '{{.USER_WORKING_DIR}}'
+    sources:
+      - "./web/sass/**/*"
+    cmds:
+      #- sass ./web/saas/linkerpod.scss:./web/static/assets/linkerpod.css
+      - sass ./web/sass/linkerpod.scss:./tmp/assets/linkerpod.css
 
   dev_static:
     dir: '{{.USER_WORKING_DIR}}'
@@ -40,11 +49,13 @@ tasks:
     cmds: 
       - task: dev_yaml
       - cp -R ./web/static/** ./tmp
+      - cp -R ./web/static/linkerpod.html ./tmp/index.html
 
   dev_wasm:
     dir: '{{.USER_WORKING_DIR}}'
     sources: 
       - "./web/wasm/*"
+      - "./pkg/**/*"
     cmds: 
       - GOARCH=wasm GOOS=js go build -o ./tmp/webapp.wasm ./web/wasm
 
