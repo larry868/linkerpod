@@ -8,12 +8,12 @@ With LinkerPod, you're not just creating a web page; you're crafting your digita
 
 ## Promises
 
-1. Centralized Control: LinkerPod offers you a unified platform to manage your online presence effortlessly. From links to social profiles, public keys, personal information, and projects, it's all in one place, under your control.
-1. Simplified Link Management: Easily add, organize, and categorize your links to various online profiles, projects, and resources. No more scattered links or outdated information.
-1. Branded Domains: Establish a professional and memorable online identity by connecting your custom domain. With LinkerPod, your digital presence will stand out.
-1. Effortless Sharing: Share collections of your links with a unique and simple URL. Whether it's a link-in-bio for your social media, a portfolio for your projects, or a curated list of your favorite resources, sharing is seamless.
-1. Privacy Empowerment: Your digital identity should be as private or public as you want it to be. LinkerPod provides robust privacy controls, so you decide who can see your links and content.
-1. Developer Integration: If you're a developer, LinkerPod seamlessly integrates with your favorite tools and APIs. Showcase your GitHub repositories, Stack Overflow contributions, or any valuable information with ease.
+1. **Centralized Control:** LinkerPod offers you a unified platform to manage your online presence effortlessly. From links to social profiles, public keys, personal information, and projects, it's all in one place, under your control.
+1. **Simplified Link Management:** Easily add, organize, and categorize your links to various online profiles, projects, and resources. No more scattered links or outdated information.
+1. **Branded Domains:** Establish a professional and memorable online identity by connecting your custom domain. With LinkerPod, your digital presence will stand out.
+1. **Effortless Sharing:** Share collections of your links with a unique and simple URL. Whether it's a link-in-bio for your social media, a portfolio for your projects, or a curated list of your favorite resources, sharing is seamless.
+1. **Privacy Empowerment:** Your digital identity should be as private or public as you want it to be. LinkerPod provides robust privacy controls, so you decide who can see your links and content.
+1. **Developer Integration:** If you're a developer, fork LinkerPod on GitHub and make it your own.
 
 ## Key features
 
@@ -32,7 +32,8 @@ Sources of inspiration:
 
 ## Demo
 
-[linkerpod homepage](https://linkerpod.net) is a linkerpod made with linerpod !
+- [linkerpod homepage](https://linkerpod.net) is a linkerpod made with linerpod !
+- [lolorenzo777.github.io](https://lolorenzo777.github.io/linkerpod) is a simple static page built with linkerpod.
 
 ## Usage : make your own linkerpod
 
@@ -50,22 +51,24 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
     1. run `linkerpod -loadfavicons`
 1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`
 
-## Roadmap
+## To do
 
-- [ ] make it a pwa with non connected mode
+- [ ] run saas transpiler with dev task
+- [ ] header section of links
+- [ ] save layout setup in the localstorage
+- [ ] implement seo features
+- [ ] keep comments in yaml setup file when running -loadfavicons
+- [ ] make it a pwa with disconnected mode
 - [ ] handle additional information on cards, not only link
 - [ ] encrypt private information
-- [ ] keep comments in yaml setup file when running -loadfavicons
-- [ ] implement seo features
-- [ ] header section
+
+## Roadmap
 
 In a futur version linkerpod could implement some Web3 technologies such as :
+- web3 authentication 
 - decentralized storage
-- authentication with a wallet
-- display NFT
 - work with avatar
-- encrypt data
-- reward with tokens
+- display NFT
 - use IA to get the icons for minipods
 
 ## Tech
@@ -126,11 +129,43 @@ _\* The `./web/bulma-0.9.4` directory is not sync with git. It need to be downlo
 
 ## Development
 
-If you want to work on the layout, to debug, or to add features, consider the following:
+If you want to work on the layout, to debug, or to add features, consider the following
 
-We use ``task`` as task runner. See [Taskfile Installation](https://taskfile.dev/installation/) doc to install it.
+### setting dev env
 
-Run the `devinit` task from the root path to setup the `tmp` directory.
+We use [taskfile.dev](https://taskfile.dev) as task runner. See [Taskfile Installation](https://taskfile.dev/installation/) doc to install it.
+
+Run the `devinit` task from the root path to setup the `tmp` directory for the first use:
+
+```bash
+task -t ./build/Taskfile.yaml devinit
+```
+
+We use the official saas transpiler written in node so we need to set it up. Alternativelly you can install the liveSassCompile VS Code extension but it will be up to you to run it, it won't be run automatically.
+
+```bash
+# install nvm
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+source ~/.bashrc
+
+# Verify Installation
+command -v nvm
+nvm -v
+
+## install node
+nvm install node
+
+## install sass
+npm install -g sass less
+
+```
+
+Then you need to [install bulma](https://bulma.io/) locally.
+Download the Bulma zip within your `/web/` directory like `/web/bulma-0.9.4/bulma/`
+
+We're also using liverserver to test the static version of linkerpod page.
+
+### running dev env
 
 Then run the `dev` task with the `--watch flag` to live reload your `linkedpod.html` page:
 
@@ -138,14 +173,14 @@ Then run the `dev` task with the `--watch flag` to live reload your `linkedpod.h
 task -t ./build/Taskfile.yaml dev --watch
 ```
 
-
-
 ## Rebuild
 
+:warning: Rebuilding the `/docs` directory clears all its previous content. Backup your linkerpod.yaml setup file before to run it.
 
-:warning: This rebuilds the `/docs` directory and clears all its content. Backup your linkerpod setup file before to run it.
+```bash
+task -t ./build/Taskfile.yaml rebuild
+```
 
-If you've tuned `/web/saas/linkerpod.scss` you need to rebuild `.css` files according to your saas configuration.
 
 ## Licence
 
