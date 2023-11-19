@@ -1,10 +1,25 @@
 {
+    // liveserver
+    "liveServer.settings.port": 5511,
+    "liveServer.settings.root": "/tmp",
+    "liveServer.settings.AdvanceCustomBrowserCmdLine": "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe --remote-debugging-port=9222",
+    "liveServer.settings.NoBrowser": false,
+    "liveServer.settings.fullReload": true,
+    "liveServer.settings.wait": 100,
+    "liveServer.settings.https": {
+        "enable": false,
+        "cert": "",
+        "key": "",
+        "passphrase": ""
+    },
+    // gopls
     "gopls": {
         "build.buildFlags": [
             "-tags=js,wasm"
         ]
     },
-    "liveSassCompile.settings.forceBaseDirectory": "/web/saas",
+    // liveSassCompile
+    "liveSassCompile.settings.forceBaseDirectory": "/web/sass",
     "liveSassCompile.settings.formats": [
         {
             "format": "expanded",
