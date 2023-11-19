@@ -53,7 +53,7 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 
 ## To do
 
-- [ ] run saas transpiler with dev task
+- [x] run saas transpiler with dev task
 - [ ] header section of links
 - [ ] save layout setup in the localstorage
 - [ ] implement seo features
