@@ -78,7 +78,7 @@ func main() {
 	}
 	defer file.Close()
 
-	ys, err := yamlpod.Unmarshal(file)
+	ys, err := yamlpod.Unmarshal(yamlpath, file)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -37,13 +38,13 @@ type YamlMiniPod struct {
 var ErrGetYamlFile = errors.New("unable to get yaml setup file")
 
 func DownloadYaml(url string) (*YamlStruct, error) {
-	client := http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, err)
 	}
 	req.Header.Set("Permissions-Policy", "interest-cohort=()")
 
+	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, err)
@@ -53,14 +54,18 @@ func DownloadYaml(url string) (*YamlStruct, error) {
 		return nil, fmt.Errorf("DownloadYaml: %w, %w", ErrGetYamlFile, errors.New(resp.Status))
 	}
 
-	return Unmarshal(resp.Body)
+	return Unmarshal(url, resp.Body)
 }
 
-func Unmarshal(r io.Reader) (*YamlStruct, error) {
+func Unmarshal(url string, r io.Reader) (*YamlStruct, error) {
 	buf := &bytes.Buffer{}
 	n, err := io.Copy(buf, r)
-	if err == nil && n == 0 {
-		err = errors.New("empty yaml file")
+	if err == nil {
+		if n == 0 {
+			err = errors.New("empty yaml file")
+		} else if !strings.Contains(buf.String(), "links:") {
+			err = fmt.Errorf("%q file is not a linkerpod yaml file", url)
+		}
 	}
 	if err != nil {
 		return nil, err
