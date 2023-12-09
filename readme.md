@@ -32,7 +32,7 @@ Sources of inspiration:
 
 ## Demo
 
-- [linkerpod homepage](https://linkerpod.net) is a linkerpod made with linerpod !
+- [linkerpod homepage](https://linkerpod.net) is a linkerpod made with linkerpod !
 - [lolorenzo777.github.io](https://lolorenzo777.github.io/linkerpod) is a simple static page built with linkerpod.
 
 ## Usage : make your own linkerpod
@@ -50,6 +50,19 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
     1. go to docs in your forked repo: `cd {your_lnkerpod_repo}/docs`
     1. run `linkerpod -loadfavicons`
 1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`
+
+### Setting up `/linkerpod.yaml` config file
+
+All you need is links grouped in minipods.
+
+```yaml
+minipods:
+    {minipod ID}:
+        Links:
+            {link ID}:
+                link: {link url}
+                [icon: {link icon}]
+```
 
 ## To do
 
@@ -167,11 +180,16 @@ We're also using liverserver to test the static version of linkerpod page.
 
 ### running dev env
 
-Then run the `dev` task with the `--watch flag` to live reload your `linkedpod.html` page:
+Run the `dev` task with the `--watch flag` to live reload your `linkedpod.html` page then launch liveServer on port 5511.
 
 ```bash
 task -t ./build/Taskfile.yaml dev --watch
 ```
+
+This task runs: 
+- dev_sass : rebuilds `./tmp/linkerpos.css` based on `./web/sass/**/*`
+- dev_static : moves `./web/static/**/*` to `./tmp`
+- dev_wasm : rebuilds `./tmp/webapp.wasm` from `./web/wasm` including any `.pkg/**/*` changes
 
 ## Rebuild
 
