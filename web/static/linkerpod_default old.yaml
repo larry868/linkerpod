@@ -1,0 +1,63 @@
+# Linkerpod setup file
+# linkerpod_default.yaml updated on 2023-10-22 13:37:08
+links:
+    Bulma CSS Framework:
+        link: https://bulma.io/
+        icon: assets/.cacheicons/bulma-io+svg+.svg
+        minipods:
+            - minipod: Frameworks
+    Emotji:
+        name: Best emotji
+        link: https://getemoji.com/
+        icon: "chr=\U0001F600"
+    Front-in-go:
+        name: Front in go (no JS)
+        link: https://tutorialedge.net/golang/writing-frontend-web-framework-webassembly-go
+        icon: assets/.cacheicons/tutorialedge-net+32x32+.ico
+        minipods:
+            - minipod: wasm
+    Github:
+        link: https://github.com/lolorenzo777/linkerpod
+        icon: assets/.cacheicons/github-com+svg+.svg
+        minipods:
+            - minipod: header
+    Go Package:
+        link: https://pkg.go.dev/github.com/lolorenzo777/linkerpod
+        icon: assets/.cacheicons/pkg-go-dev+32x32+.ico
+        minipods:
+            - minipod: header
+    Icecake Go Wasm Framework:
+        link: https://icecake.dev/
+        icon: assets/.cacheicons/icecake-dev+256x256.ico
+        minipods:
+            - minipod: Frameworks
+    Linkerpod Home:
+        link: https://linkerpod.net/
+        icon: assets/icons/logo-linkerpod.svg
+    MIT Licence:
+        link: https://choosealicense.com/licenses/mit/
+        icon: assets/.cacheicons/choosealicense-com+32x32+.ico
+        minipods:
+            - minipod: footer
+    go wasm:
+        name: Go Web Assembly
+        link: https://github.com/golang/go/wiki/webassembly
+        icon: assets/.cacheicons/github-com+svg+.svg
+        minipods:
+            - minipod: wasm
+    mozilla wasm:
+        link: https://developer.mozilla.org/fr/docs/webassembly
+        icon: assets/.cacheicons/developer-mozilla-org+192x192+.png
+        minipods:
+            - minipod: wasm
+    tinygo:
+        link: https://tinygo.org/docs/guides/webassembly/
+        icon: assets/.cacheicons/tinygo-org+192x192+.png
+        minipods:
+            - minipod: wasm
+minipods:
+    wasm:
+        name: "Web Assembly"
+        icon: css=bi bi-braces-asterisk
+    Frameworks:
+        icon: css=bi bi-file-earmark-code

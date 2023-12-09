@@ -1,5 +1,5 @@
-# Linkerpod setup file
-# linkerpod.yaml example
+# Linkerpod.yaml setup file
+# example
 links:
     Bitcoin Whitepaper:
         link: https://bitcoin.org/bitcoin.pdf
