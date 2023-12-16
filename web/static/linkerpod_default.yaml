@@ -1,53 +1,45 @@
 # Linkerpod setup file
 # linkerpod_default.yaml updated on 2023-10-22 13:37:08
 minipods:
-    header:
-        Links:
+    01.header:
+        links:
             Github:
                 link: https://github.com/lolorenzo777/linkerpod
                 icon: assets/.cacheicons/github-com+svg+.svg
             Go Package:
                 link: https://pkg.go.dev/github.com/lolorenzo777/linkerpod
                 icon: assets/.cacheicons/pkg-go-dev+32x32+.ico
-    Frameworks:
+    02.frameworks:
+        separator: blank
+        name: Framework
         icon: css=bi bi-file-earmark-code
-        Links:
+        links:
             Icecake Go Wasm Framework:
                 link: https://icecake.dev/
                 icon: assets/.cacheicons/icecake-dev+256x256.ico
             Bulma CSS Framework:
                 link: https://bulma.io/
                 icon: assets/.cacheicons/bulma-io+svg+.svg
-    wasm:
+    03.wasm:
         name: "Web Assembly"
         icon: css=bi bi-braces-asterisk
+        isopen: true
         links:
-            go wasm:
-                name: Go Web Assembly
+            4go wasm:
+                name: 4 Go Web Assembly
                 link: https://github.com/golang/go/wiki/webassembly
                 icon: assets/.cacheicons/github-com+svg+.svg
-                minipods:
-                    - minipod: wasm
-            mozilla wasm:
+            2mozilla wasm:
                 link: https://developer.mozilla.org/fr/docs/webassembly
                 icon: assets/.cacheicons/developer-mozilla-org+192x192+.png
-                minipods:
-                    - minipod: wasm
-            tinygo:
+            1tinygo:
                 link: https://tinygo.org/docs/guides/webassembly/
                 icon: assets/.cacheicons/tinygo-org+192x192+.png
-                minipods:
-                    - minipod: wasm
-            Front-in-go:
-                name: Front in go (no JS)
+            3Front-in-go:
+                name: 3 Front in go (no JS)
                 link: https://tutorialedge.net/golang/writing-frontend-web-framework-webassembly-go
                 icon: assets/.cacheicons/tutorialedge-net+32x32+.ico
-    footer:
-        Links:
-            MIT Licence:
-                link: https://choosealicense.com/licenses/mit/
-                icon: assets/.cacheicons/choosealicense-com+32x32+.ico
-    others:
+    04.others:
         links:
             Emotji:
                 name: Best emotji
@@ -56,3 +48,7 @@ minipods:
             Linkerpod Home:
                 link: https://linkerpod.net/
                 icon: assets/icons/logo-linkerpod.svg
+links:
+    MIT Licence:
+        link: https://choosealicense.com/licenses/mit/
+        icon: assets/.cacheicons/choosealicense-com+32x32+.ico

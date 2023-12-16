@@ -11,32 +11,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// YamlStruct overall structure of linkerpod yaml configuration file
 type YamlStruct struct {
-	Links    map[string]YamlLink    `yaml:"links"`
-	MiniPods map[string]YamlMiniPod `yaml:"minipods,omitempty"`
-}
-
-type YamlLink struct {
-	Name     string              `yaml:"name,omitempty"`
-	Link     string              `yaml:"link,omitempty"`
-	Icon     string              `yaml:"icon,omitempty"`
-	Minipods []YamlMinipodInLink `yaml:"minipods,omitempty"`
-}
-
-type YamlMinipodInLink struct {
-	MinipodKey string `yaml:"minipod,omitempty"`
-	ABC        string `yaml:"abc,omitempty"`
+	MiniPods    map[string]YamlMiniPod `yaml:"minipods,omitempty"` // minipods containing links
+	SingleLinks map[string]YamlLink    `yaml:"links,omitempty"`    // standalone links
 }
 
 type YamlMiniPod struct {
-	Name     string              `yaml:"name,omitempty"`
-	Icon     string              `yaml:"icon,omitempty"`
-	ABC      string              `yaml:"abc,omitempty"`
-	Minipods []YamlMinipodInLink `yaml:"minipods,omitempty"`
+	Separator string              `yaml:"separator,omitempty"`
+	Name      string              `yaml:"name,omitempty"`
+	Icon      string              `yaml:"icon,omitempty"`
+	Links     map[string]YamlLink `yaml:"links,omitempty"`
+	IsOpen    bool                `yaml:"isopen,omitempty"`
+}
+
+type YamlLink struct {
+	Name string `yaml:"name,omitempty"`
+	Link string `yaml:"link,omitempty"`
+	Icon string `yaml:"icon,omitempty"`
 }
 
 var ErrGetYamlFile = errors.New("unable to get yaml setup file")
 
+// DownloadYaml Get the yaml file at url and unmarshal its content
 func DownloadYaml(url string) (*YamlStruct, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -86,11 +86,11 @@ func main() {
 
 	// update cache
 	if loadicons || resetcache {
-		verbose.Printf(verbose.INFO, "processing pod %q: %v links\n", yamlpath, len(ys.Links))
+		verbose.Printf(verbose.INFO, "processing pod %q: %v links\n", yamlpath, len(ys.SingleLinks))
 		nko := 0
 		nok := 0
 		client := &http.Client{Timeout: time.Second * 5}
-		for x, ylnk := range ys.Links {
+		for x, ylnk := range ys.SingleLinks {
 			ylnk.Link = strings.ToLower(strings.Trim(ylnk.Link, " "))
 
 			isincache := strings.HasPrefix(ylnk.Icon, PATH_CACHEICONS)
@@ -121,7 +121,7 @@ func main() {
 
 			if fup {
 				nok += 1
-				ys.Links[x] = ylnk
+				ys.SingleLinks[x] = ylnk
 			}
 		}
 
@@ -141,7 +141,7 @@ func main() {
 		fmt.Printf("favicon cache: %v link update, %v link fail\n", nok, nko)
 		os.Exit(0)
 	} else {
-		fmt.Printf("pod %q: has %v minipods and %v links\n", yamlpath, len(ys.MiniPods), len(ys.Links))
+		fmt.Printf("pod %q: has %v minipods and %v links\n", yamlpath, len(ys.MiniPods), len(ys.SingleLinks))
 	}
 
 }

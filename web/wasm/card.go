@@ -32,8 +32,8 @@ type CardSnippet struct {
 
 	HRef       *url.URL // URL link card
 	IsExpanded bool
-	InMiniPods int
-	ABC        string
+	//InMiniPods int
+	// SortIndex string
 
 	dftfaviconprefix string
 }
@@ -45,7 +45,7 @@ func Card(key string, name string) *CardSnippet {
 	n := new(CardSnippet)
 	n.Tag().SetId(key)
 	n.Name = name
-	n.ABC = "b"
+	// n.SortIndex = "b"
 	return n
 }
 
@@ -105,8 +105,8 @@ func (card *CardSnippet) BuildTag() ickcore.Tag {
 	card.Tag().
 		SetTagName("div").
 		AddClass("card mb-1 px-3").
-		SetClassIf(!card.IsExpanded, "py-1", "py-3").
-		SetAttributeIf(card.ABC != "", "data-abc", card.ABC)
+		SetClassIf(!card.IsExpanded, "py-1", "py-3")
+		// SetAttributeIf(card.SortIndex != "", "data-abc", card.SortIndex)
 	return *card.Tag()
 }
 

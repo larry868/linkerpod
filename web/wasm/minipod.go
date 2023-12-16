@@ -8,7 +8,6 @@ import (
 	"github.com/icecake-framework/icecake/pkg/dom"
 	"github.com/icecake-framework/icecake/pkg/event"
 	"github.com/icecake-framework/icecake/pkg/ick"
-	"github.com/icecake-framework/icecake/pkg/ick/ickui"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
 	"github.com/lolorenzo777/loadfavicon/v2/pkg/svg"
 )
@@ -17,7 +16,8 @@ type MiniPodSnippet struct {
 	ickcore.BareSnippet
 	dom.UI
 
-	Name string // mini pod name
+	Separator string // could be "blank" or "splitter" used by the father snipper rendering process
+	Name      string // mini pod name
 
 	iconSrc      *url.URL // URL of the icon
 	iconSVG      string
@@ -26,16 +26,15 @@ type MiniPodSnippet struct {
 
 	Body []*CardSnippet // rendered as <div class="card-content">
 
-	IsExpanded bool
-	IsOpen     bool
-	HasMore    int
-	ABC        string
+	//IsExpanded bool
+	IsOpen bool
+	//HasMore    int
 }
 
 // Ensuring MiniPodSnippet implements the right interface
 var _ dom.UIComposer = (*MiniPodSnippet)(nil)
 
-func MiniPod(key string, name string, iconkey string, abc string) *MiniPodSnippet {
+func MiniPod(key string, name string, iconkey string, seperator string) *MiniPodSnippet {
 	n := new(MiniPodSnippet)
 	n.Body = make([]*CardSnippet, 0)
 	n.Tag().SetId(key)
@@ -45,37 +44,41 @@ func MiniPod(key string, name string, iconkey string, abc string) *MiniPodSnippe
 	} else {
 		n.SetIcon("css=bi bi-dot")
 	}
-	n.ABC = abc
+	n.Separator = seperator
 	return n
 }
 
-// InsertCard inserts c card to the minipod according to abc position.
-// If abc parameter is empty then the abc position of the card itself is used.
-// If abc is greather or equal than c then the class "more" is added
-func (mp *MiniPodSnippet) InsertCard(c CardSnippet, abc string) {
-	if abc != "" {
-		c.ABC = abc
-	}
-	c.Tag().SetClassIf(c.ABC >= "c", "more is-hidden")
-	if c.ABC >= "c" {
-		mp.HasMore++
-	}
-
-	for i, cinbody := range mp.Body {
-		if c.ABC < cinbody.ABC || (c.ABC == cinbody.ABC && c.Name < cinbody.Name) {
-			mp.Body = append(mp.Body[:i+1], mp.Body[i:]...)
-			mp.Body[i] = &c
-			return
-		}
-	}
-	mp.Body = append(mp.Body, &c)
+func (mp MiniPodSnippet) IsSeparatorOnly() bool {
+	return mp.Name == "" && mp.Separator != ""
 }
 
-func (mp MiniPodSnippet) ABCGroup() string {
-	if len(mp.ABC) > 0 {
-		return string(mp.ABC[0])
+// InsertCard inserts c card to the minipod. Return false if not inserted because of duplicate key
+func (mp *MiniPodSnippet) InsertCard(c CardSnippet) bool {
+	// cmore := ""
+	// if len(c.SortIndex) >= 5 {
+	// 	cmore = c.SortIndex[:5]
+	// }
+	// if cmore == "_more" {
+	// 	c.Tag().AddClass("more is-hidden")
+	// 	//mp.HasMore++
+	// }
+
+	for i, cinbody := range mp.Body {
+		// check if not a duplicate id
+		if c.Tag().Id() == cinbody.Tag().Id() {
+			return false
+		}
+
+		// verbose.Printf(verbose.INFO, "%v newc=%s scanc=%s\n", i, c.Tag().Id(), cinbody.Tag().Id())
+		if c.Tag().Id() < cinbody.Tag().Id() {
+			mp.Body = append(mp.Body[:i+1], mp.Body[i:]...)
+			mp.Body[i] = &c
+			return true
+		}
 	}
-	return ""
+	// verbose.Printf(verbose.INFO, "newc=%s append\n", c.Tag().Id())
+	mp.Body = append(mp.Body, &c)
+	return true
 }
 
 // SetIcon
@@ -103,6 +106,8 @@ func (mp *MiniPodSnippet) SetIcon(icon string) *MiniPodSnippet {
 /******************************************************************************/
 
 func (mp *MiniPodSnippet) NeedRendering() bool {
+	return true
+	//XXX:
 	return len(mp.Body) > 0
 }
 
@@ -110,17 +115,12 @@ func (mp *MiniPodSnippet) NeedRendering() bool {
 func (mp *MiniPodSnippet) BuildTag() ickcore.Tag {
 	mp.Tag().
 		SetTagName("div").
-		AddClass("card mb-1").
-		SetAttributeIf(mp.ABC != "", "data-abc", mp.ABC)
+		AddClass("card mb-1")
 	return *mp.Tag()
 }
 
 // RenderContent
 func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
-
-	if mp.Name == "header" || mp.Name == "footer" {
-		return mp.RenderLinkList(out)
-	}
 
 	ickcore.RenderString(out, `<header class="card-header">`, `<p class="card-header-title pl-3">`)
 
@@ -156,34 +156,32 @@ func (mp *MiniPodSnippet) RenderContent(out io.Writer) error {
 	mp.RenderLinkList(out)
 	ickcore.RenderString(out, `</div>`)
 
-	if mp.HasMore > 0 {
-		btnmore := ickui.Button("More...").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
-		btnmore.OnClick = mp.OnShowMeMore
-		ickcore.RenderString(out, `<div class="card-footer is-hidden">`)
-		ickcore.RenderString(out, `<span class="card-footer-item is-justify-content-flex-start">`)
-		ickcore.RenderChild(out, mp, btnmore)
-		ickcore.RenderString(out, `</span>`)
-		ickcore.RenderString(out, `</div>`)
-	}
+	// if mp.HasMore > 0 {
+	// 	btnmore := ickui.Button("More...").SetId(mp.Tag().SubId("btnmore")).SetColor(ick.COLOR_PRIMARY).SetOutlined(true).SetSize(ick.SIZE_SMALL)
+	// 	btnmore.OnClick = mp.OnShowMeMore
+	// 	ickcore.RenderString(out, `<div class="card-footer is-hidden">`)
+	// 	ickcore.RenderString(out, `<span class="card-footer-item is-justify-content-flex-start">`)
+	// 	ickcore.RenderChild(out, mp, btnmore)
+	// 	ickcore.RenderString(out, `</span>`)
+	// 	ickcore.RenderString(out, `</div>`)
+	// }
 	return nil
 }
 
 // RenderLinkList
 func (mp *MiniPodSnippet) RenderLinkList(out io.Writer) error {
-	var lastabc byte
 	for _, cinbody := range mp.Body {
-		if lastabc != 0 && len(cinbody.ABC) > 0 && cinbody.ABC[0] != lastabc {
-			hidesplit := ""
-			if cinbody.ABC[0] >= 'c' {
-				hidesplit = "more is-hidden"
-			}
-			ickcore.RenderString(out, `<span class="hsplitter `+hidesplit+`"></span>`)
-		}
+		//		if lastabc != 0 && len(cinbody.ABC) > 0 && cinbody.ABC[0] != lastabc {
+		//hidesplit := ""
+		// if cinbody.ABC[0] >= 'c' {
+		// 	hidesplit = "more is-hidden"
+		// }
+		//ickcore.RenderString(out, `<span class="hsplitter `+hidesplit+`"></span>`)
+		// }
 		err := ickcore.RenderChild(out, mp, cinbody)
 		if err != nil {
 			return err
 		}
-		lastabc = cinbody.ABC[0]
 	}
 	return nil
 }
@@ -191,10 +189,6 @@ func (mp *MiniPodSnippet) RenderLinkList(out io.Writer) error {
 // AddListeners
 func (mp *MiniPodSnippet) AddListeners() {
 	if !mp.DOM.IsInDOM() {
-		return
-	}
-
-	if mp.Name == "header" || mp.Name == "footer" {
 		return
 	}
 
@@ -209,9 +203,6 @@ func (mp *MiniPodSnippet) AddListeners() {
 /******************************************************************************/
 
 func (mp *MiniPodSnippet) OnOpenClose(open bool) {
-	if mp.Name == "header" || mp.Name == "footer" {
-		return
-	}
 
 	if !open {
 		mp.IsOpen = false

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/lolorenzo777/linkerpod/pkg/yamlpod"
+	"github.com/lolorenzo777/verbose"
 
 	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"
@@ -41,7 +42,7 @@ var (
 			SetIcon(*ick.Icon(ICON_TILES), false).
 			SetSize(ick.SIZE_SMALL)
 
-	_gpod LinkerPod
+	_glp LinkerPod
 )
 
 // The main func is required by the wasm GO builder.
@@ -49,7 +50,7 @@ var (
 func main() {
 	c := make(chan struct{})
 	fmt.Println("Go/WASM loaded and running...")
-	// verbose.IsOn = true
+	verbose.IsOn = true
 	// verbose.IsDebugging = true
 
 	var err error
@@ -84,17 +85,17 @@ func main() {
 
 	// load the linkerpod yaml file
 	if err == nil {
-		_gpod, err = DownloadData(yaml)
+		_glp, err = DownloadData(yaml)
 		if yaml == _setupfile && errors.Is(err, yamlpod.ErrGetYamlFile) {
-			_gpod, err = DownloadData(_setupdefaultfile)
+			_glp, err = DownloadData(_setupdefaultfile)
 		}
 	}
 
 	// feed the webapp page content
 	if err == nil {
 		// insert linkerpod snippet into the DOM and mount it
-		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_gpod)
-		_gpod.Mount(baseuri.Fragment)
+		dom.Id("webapp").InsertSnippet(dom.INSERT_BODY, &_glp)
+		_glp.Mount(baseuri.Fragment)
 
 		// setup the button
 		_btnLayout.OnClick = OnToggleLayout
@@ -120,14 +121,14 @@ func main() {
 
 // OnToggleLayout toggle the layout of the overall pod and toggle the layout button content
 func OnToggleLayout() {
-	if _gpod.Layout == LAYOUT_LIST {
+	if _glp.Layout == LAYOUT_LIST {
 		_btnLayout.Title = "Tiles"
 		_btnLayout.OpeningIcon.Key = ICON_TILES
-		_gpod.SetLayout(LAYOUT_TILES)
+		_glp.SetLayout(LAYOUT_TILES)
 	} else {
 		_btnLayout.Title = "List"
 		_btnLayout.OpeningIcon.Key = ICON_LIST
-		_gpod.SetLayout(LAYOUT_LIST)
+		_glp.SetLayout(LAYOUT_LIST)
 	}
 	_btnLayout.RefreshContent(_btnLayout)
 	_btnLayout.DOM.Blur()
@@ -145,63 +146,64 @@ func DownloadData(yaml string) (LinkerPod, error) {
 	}
 
 	// parse lp.MiniPodMap
+	nlinksinminipod := 0
 	for ympk, ymp := range ys.MiniPods {
-		if ymp.Name == "" {
-			ymp.Name = ympk
-		}
-		ympk = "mp-" + namingpattern.MakeValidName(strings.ToLower(ympk))
+		// if ymp.Name == "" {
+		// 	ymp.Name = ympk
+		// }
+		ympk = namingpattern.MakeValidName("mp-" + strings.ToLower(ympk))
 		if _, found := lp.MiniPodMap[ympk]; found {
 			console.Warnf("DownloadData.minipods: duplicate minipod id %q", ympk)
 			continue
 		}
-		mp := MiniPod(ympk, ymp.Name, ymp.Icon, "2"+strings.ToLower(ymp.ABC))
+		mp := MiniPod(ympk, ymp.Name, ymp.Icon, ymp.Separator)
+		mp.IsOpen = ymp.IsOpen
 		lp.MiniPodMap[ympk] = mp
+
+		// insert card in Minipods
+		for ylnkk, ylnk := range ymp.Links {
+			if ylnk.Link == "" {
+				console.Warnf("DownloadData: missing link %q", ylnkk)
+				continue
+			}
+			if ylnk.Name == "" {
+				ylnk.Name = ylnkk
+			}
+			lnkkey := namingpattern.MakeValidName("lnk-" + strings.ToLower(ylnkk))
+			inlnkkey := mp.Tag().SubId(lnkkey)
+			inlnk := Card(inlnkkey, ylnk.Name).ParseHRef(ylnk.Link)
+			//lnkin.Tag().SetId(inlnkkey)
+			inlnk.SetIcon(ylnk.Icon)
+			if !mp.InsertCard(*inlnk) { //, mpinlnk.ABC)
+				console.Warnf("DownloadData.links: duplicate %q", inlnkkey)
+			}
+		}
+
+		nlinksinminipod += len(mp.Body)
 	}
 
-	// add header and footer minipods
-	mph := MiniPod("mp-header", "header", "", "1")
-	lp.MiniPodMap["mp-header"] = mph
-	mpf := MiniPod("mp-footer", "footer", "", "3")
-	lp.MiniPodMap["mp-footer"] = mpf
-
-	// parse lp.LinksMap
-	for ylnkk, ylnk := range ys.Links {
+	// parse lp.SingleLinks
+	for ylnkk, ylnk := range ys.SingleLinks {
 		if ylnk.Link == "" {
 			console.Warnf("DownloadData.links: missing link %q", ylnkk)
 			continue
 		}
-
 		if ylnk.Name == "" {
 			ylnk.Name = ylnkk
 		}
-		lnkkey := "lnk-" + namingpattern.MakeValidName(strings.ToLower(ylnkk))
-		if _, found := lp.LinksMap[lnkkey]; found {
+		lnkkey := namingpattern.MakeValidName("lnk-" + strings.ToLower(ylnkk))
+		if _, found := lp.SingleLinkMap[lnkkey]; found {
 			console.Warnf("DownloadData.links: duplicate %q", lnkkey)
 			continue
 		}
 
 		lnk := Card(lnkkey, ylnk.Name).ParseHRef(ylnk.Link)
 		lnk.SetIcon(ylnk.Icon)
-		lp.LinksMap[lnkkey] = lnk
-
-		// insert card in Minipods
-		for _, mpinlnk := range ylnk.Minipods {
-			mpkey := "mp-" + namingpattern.MakeValidName(strings.ToLower(mpinlnk.MinipodKey))
-			mp, found := lp.MiniPodMap[mpkey]
-			if !found {
-				console.Warnf("DownloadData.links: minipod %q not found", mpinlnk.MinipodKey)
-				continue
-			}
-
-			lp.LinksMap[lnkkey].InMiniPods++
-			inlnkkey := mp.Tag().SubId(lnkkey)
-			lnkin := *lnk
-			lnkin.Tag().SetId(inlnkkey)
-			mp.InsertCard(lnkin, mpinlnk.ABC)
-		}
+		lp.SingleLinkMap[lnkkey] = lnk
 	}
 
-	if len(lp.LinksMap) == 0 {
+	verbose.Printf(verbose.INFO, "Downloaded %v links grouped in %v mini pods and %v single links, in %q\n", nlinksinminipod, len(lp.MiniPodMap), len(lp.SingleLinkMap), yaml)
+	if len(lp.SingleLinkMap) == 0 && len(lp.MiniPodMap) == 0 {
 		return *lp, fmt.Errorf("empty pod")
 	}
 
