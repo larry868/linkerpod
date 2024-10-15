@@ -1,4 +1,4 @@
-// Copyright 2022 by lolorenzo77. All rights reserved.
+// Copyright 2022-2024 by larry868@sunraylabs.net. All rights reserved.
 // Use of this source code is governed by MIT licence that can be found in the LICENSE file.
 
 // this main package contains the web assembly source code.
@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lolorenzo777/linkerpod/pkg/yamlpod"
-	"github.com/lolorenzo777/verbose"
+	"github.com/larry868/linkerpod/pkg/yamlpod"
+	"github.com/larry868/verbose"
 
 	"github.com/icecake-framework/icecake/pkg/console"
 	"github.com/icecake-framework/icecake/pkg/dom"

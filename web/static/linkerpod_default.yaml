@@ -4,10 +4,10 @@ minipods:
     01.header:
         links:
             Github:
-                link: https://github.com/lolorenzo777/linkerpod
+                link: https://github.com/larry868/linkerpod
                 icon: assets/.cacheicons/github-com+svg+.svg
             Go Package:
-                link: https://pkg.go.dev/github.com/lolorenzo777/linkerpod
+                link: https://pkg.go.dev/github.com/larry868/linkerpod
                 icon: assets/.cacheicons/pkg-go-dev+32x32+.ico
     02.frameworks:
         separator: blank

@@ -2,6 +2,8 @@
 
 LinkerPod: Unleash Your Digital Identity
 
+Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
+
 In the digital age, your online presence is your identity. LinkerPod is your key to unlocking and enhancing that identity. It serves as your personal hub, a central command center where you can curate, manage, and showcase every aspect of your digital life. Whether you're a developer looking to flaunt your projects, a content creator sharing your expertise, or simply someone wanting a sleek online presence, LinkerPod empowers you to take control of your digital identity.
 
 With LinkerPod, you're not just creating a web page; you're crafting your digital identity. It's time to unleash the full potential of your online presence with LinkerPod: Unleash Your Digital Identity.
@@ -17,8 +19,6 @@ With LinkerPod, you're not just creating a web page; you're crafting your digita
 
 ## Key features
 
-Linkerpod aims to act as a personal dashboard. It can be used like a link-in-bio, or like a brand portal, or a home page for a home lab.
-
 - Build you own page
 - Group and organize many web links to a single page
 - Deployed over you domain or sub-domain.
@@ -33,7 +33,7 @@ Sources of inspiration:
 ## Demo
 
 - [linkerpod homepage](https://linkerpod.net) is a linkerpod made with linkerpod !
-- [lolorenzo777.github.io](https://lolorenzo777.github.io/linkerpod) is a simple static page built with linkerpod.
+- [larry868.github.io](https://larry868.github.io/linkerpod) is a simple static page built with linkerpod.
 
 ## Usage : make your own linkerpod
 
@@ -46,7 +46,7 @@ Fork this repo and activate [GitHub Pages](https://pages.github.com/):
 1. customize the `/docs/linkerpod.yaml` file with your own links
 1. if you want to display website favicons rather than icons you've selected:
     - download favicons and set them in a cache with the following command:
-    1. install linkerpod with `go install github.com/lolorenzo777/linkerpod`
+    1. install linkerpod with `go install github.com/larry868/linkerpod`
     1. go to docs in your forked repo: `cd {your_lnkerpod_repo}/docs`
     1. run `linkerpod -loadfavicons`
 1. activate GitHub Pages on your repo, and specify `deploy from a branch` in `master` and `/docs`

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lolorenzo777/linkerpod/pkg/yamlpod"
-	"github.com/lolorenzo777/loadfavicon/v2"
-	"github.com/lolorenzo777/verbose"
+	"github.com/larry868/linkerpod/pkg/yamlpod"
+	"github.com/larry868/loadfavicon/v2"
+	"github.com/larry868/verbose"
 )
 
 const (

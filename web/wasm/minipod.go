@@ -9,7 +9,7 @@ import (
 	"github.com/icecake-framework/icecake/pkg/event"
 	"github.com/icecake-framework/icecake/pkg/ick"
 	"github.com/icecake-framework/icecake/pkg/ickcore"
-	"github.com/lolorenzo777/loadfavicon/v2/pkg/svg"
+	"github.com/larry868/loadfavicon/v2/pkg/svg"
 )
 
 type MiniPodSnippet struct {
